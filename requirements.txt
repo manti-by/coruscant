@@ -1,4 +1,4 @@
-requests==2.28.2
+requests==2.31.0
 Adafruit-DHT==1.4.0
 spidev==3.6
 RPi.GPIO==0.7.1
