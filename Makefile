@@ -6,10 +6,10 @@ migrate:
 	psql -h localhost -U apollo apollo -c "$SENSORS_MIGRATION_SCRIPT"
 
 pip:
-	uv sync --all-extras
+	uv sync --extra dev
 
 update:
-	uv sync --upgrade --all-extras
+	uv sync --upgrade --extra dev
 	pre-commit autoupdate
 
 check:

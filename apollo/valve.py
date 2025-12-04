@@ -1,75 +1,66 @@
 import logging
 import logging.config
-import os
 import time
 from decimal import Decimal
 
-import RPi.GPIO as GPIO
-from apollo.settings import LOGGING
 from pi1wire import NotFoundSensorException, Pi1Wire, Resolution
+
+from apollo.services.gpio import close_gpio, set_gpio_state, setup_gpio
+from apollo.settings import (
+    LOGGING,
+    RELAY_COOL_PIN,
+    RELAY_HEAT_PIN,
+    VALVE_ACT_TIMEOUT,
+    VALVE_SENSOR_ID,
+    VALVE_TEMP_HYSTERESIS,
+)
 
 
 logging.config.dictConfig(LOGGING)
 logger = logging.getLogger(__name__)
 
-SENSOR_ID = os.getenv("VALVE_SENSOR_ID", "28000007173569")
+MODE_HEAT, MODE_COOL = "heat", "cool"
 
-RELAY_HEAT_PIN = 11
-RELAY_COOL_PIN = 13
-
-MODE_HEAT = "heat"
-MODE_COOL = "cool"
-
+# TODO: Read from a database
 TARGET_TEMP = Decimal("27.0")
-HYSTERESIS = Decimal("1.0")
-ACT_INTERVAL = Decimal("60.0")
 
 
-def setup_gpio() -> None:
-    GPIO.setmode(GPIO.BOARD)
+def read_temperature() -> Decimal:
+    try:
+        wire = Pi1Wire()
+        sensor = wire.find(VALVE_SENSOR_ID)
+    except NotFoundSensorException:
+        logger.error(f"Temperature sensor {VALVE_SENSOR_ID} not found")
+        exit(1)
 
-    GPIO.setup(RELAY_HEAT_PIN, GPIO.OUT, initial=GPIO.LOW)
-    GPIO.setup(RELAY_COOL_PIN, GPIO.OUT, initial=GPIO.LOW)
-
-    logger.info(f"GPIO initialised: HEAT={RELAY_HEAT_PIN}, COOL={RELAY_COOL_PIN} (BOARD numbering)")
+    sensor.change_resolution(resolution=Resolution.X0_25)
+    return round(Decimal(str(sensor.get_temperature())))
 
 
 def set_valve_mode(mode: str) -> None:
     if mode == MODE_HEAT:
-        GPIO.output(RELAY_HEAT_PIN, GPIO.HIGH)
+        set_gpio_state(gpio_pin=RELAY_HEAT_PIN, target_state=True)
     else:
-        GPIO.output(RELAY_COOL_PIN, GPIO.HIGH)
+        set_gpio_state(gpio_pin=RELAY_COOL_PIN, target_state=True)
 
-    logger.info(f"Setting valve mode set to {mode}")
-    time.sleep(ACT_INTERVAL)
+    logger.info(f"Setting valve mode to {mode}")
+    time.sleep(VALVE_ACT_TIMEOUT)
     logger.info(f"Successfully set valve mode to {mode}")
 
-    GPIO.output(RELAY_HEAT_PIN, GPIO.LOW)
-    GPIO.output(RELAY_COOL_PIN, GPIO.LOW)
-
-
-def read_temperature() -> Decimal | None:
-    try:
-        wire = Pi1Wire()
-        sensor = wire.find(SENSOR_ID)
-    except NotFoundSensorException:
-        logger.error(f"Temperature sensor {SENSOR_ID} not found")
-        exit(1)
-
-    sensor.change_resolution(resolution=Resolution.X0_25)
-    return Decimal(str(sensor.get_temperature()))
+    set_gpio_state(gpio_pin=RELAY_HEAT_PIN, target_state=False)
+    set_gpio_state(gpio_pin=RELAY_HEAT_PIN, target_state=False)
 
 
 if __name__ == "__main__":
     setup_gpio()
 
     temp = read_temperature()
-    logger.info(f"Temperature: {temp}°C")
+    logger.info(f"Temperature: {temp:.2f}°C")
 
-    if temp < TARGET_TEMP - HYSTERESIS:
+    if temp < TARGET_TEMP - VALVE_TEMP_HYSTERESIS:
         set_valve_mode(mode=MODE_HEAT)
 
-    elif temp > TARGET_TEMP + HYSTERESIS:
+    elif temp > TARGET_TEMP + VALVE_TEMP_HYSTERESIS:
         set_valve_mode(mode=MODE_COOL)
 
-    GPIO.cleanup()
+    close_gpio()
