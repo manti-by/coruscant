@@ -1,10 +1,9 @@
-import logging
 import logging.config
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from apollo.services.gpio import close_gpio, set_gpio_state, setup_gpio
-from apollo.settings import (
+from coruscant.services.gpio import close_gpio, set_gpio_state, setup_gpio
+from coruscant.settings import (
     LOGGING,
     RD_PUMP_PIN,
     WF_PUMP_PIN,

@@ -2,6 +2,6 @@ CREATE TABLE data (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     sensor_id TEXT NOT NULL,
     temp NUMERIC NOT NULL,
-    context TEXT DEFAULT '{}',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    synced_at DATETIME 
+    synced_at DATETIME
+);

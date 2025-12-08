@@ -1,12 +1,12 @@
-import logging
 import logging.config
 import time
 from decimal import Decimal
 
 from pi1wire import NotFoundSensorException, Pi1Wire, Resolution
 
-from apollo.services.gpio import close_gpio, set_gpio_state, setup_gpio
-from apollo.settings import (
+from coruscant.exceptions import TempReadErrorException
+from coruscant.services.gpio import close_gpio, set_gpio_state, setup_gpio
+from coruscant.settings import (
     LOGGING,
     RELAY_COOL_PIN,
     RELAY_HEAT_PIN,
@@ -29,12 +29,11 @@ def read_temperature() -> Decimal:
     try:
         wire = Pi1Wire()
         sensor = wire.find(VALVE_SENSOR_ID)
-    except NotFoundSensorException:
-        logger.error(f"Temperature sensor {VALVE_SENSOR_ID} not found")
-        exit(1)
+    except NotFoundSensorException as e:
+        raise TempReadErrorException from e
 
     sensor.change_resolution(resolution=Resolution.X0_25)
-    return round(Decimal(str(sensor.get_temperature())))
+    return Decimal(round(sensor.get_temperature(), 2))
 
 
 def set_valve_mode(mode: str) -> None:
@@ -54,8 +53,12 @@ def set_valve_mode(mode: str) -> None:
 if __name__ == "__main__":
     setup_gpio()
 
-    temp = read_temperature()
-    logger.info(f"Temperature: {temp:.2f}°C")
+    try:
+        temp = read_temperature()
+        logger.info(f"Temperature: {temp:.2f}°C")
+    except TempReadErrorException as e:
+        logger.error(f"Temperature sensor {VALVE_SENSOR_ID} not found")
+        exit(e.exit_code)
 
     if temp < TARGET_TEMP - VALVE_TEMP_HYSTERESIS:
         set_valve_mode(mode=MODE_HEAT)
