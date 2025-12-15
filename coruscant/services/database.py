@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import sqlite3
 from typing import TYPE_CHECKING
 
@@ -45,5 +46,15 @@ def save_sensor_data(sensor_id: str, temp: Decimal):
         cursor.execute(
             "INSERT INTO data (sensor_id, temp) VALUES (?, ?)",
             (sensor_id, str(temp)),
+        )
+        connection.commit()
+
+
+def update_sensor_data(sensor_id: str, synced_at: datetime):
+    with sqlite3.connect(DATABASE_PATH) as connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            "UPDATE data SET synced_at = ? WHERE sensor_id = ?",
+            (sensor_id, synced_at),
         )
         connection.commit()

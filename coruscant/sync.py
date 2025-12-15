@@ -1,8 +1,9 @@
 import logging.config
+from datetime import datetime
 
 import requests
 
-from coruscant.services.database import get_data_for_sync
+from coruscant.services.database import get_data_for_sync, update_sensor_data
 from coruscant.settings import LOGGING, SYNC_API_URL
 
 
@@ -26,4 +27,5 @@ if __name__ == "__main__":
                 headers={"Content-Type": "application/json"},
                 timeout=10,
             )
+            update_sensor_data(sensor_id=item["sensor_id"], synced_at=datetime.now())
         logger.info(f"Synced {len(result)} sensor records")
