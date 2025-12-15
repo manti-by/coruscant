@@ -55,6 +55,6 @@ def update_sensor_data(sensor_id: str, synced_at: datetime):
         cursor = connection.cursor()
         cursor.execute(
             "UPDATE data SET synced_at = ? WHERE sensor_id = ?",
-            (sensor_id, synced_at),
+            (synced_at, sensor_id),
         )
         connection.commit()
