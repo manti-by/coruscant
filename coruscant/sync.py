@@ -20,11 +20,11 @@ if __name__ == "__main__":
         for item in result:
             requests.post(
                 SYNC_API_URL,
-                data={
-                    "sensor_id": item["sensor_id"],
+                json={
                     "temp": item["temp"],
+                    "sensor_id": item["sensor_id"],
+                    "created_at": item["created_at"],
                 },
-                headers={"Content-Type": "application/json"},
                 timeout=10,
             )
             update_sensor_data(sensor_id=item["sensor_id"], synced_at=datetime.now())
