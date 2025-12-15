@@ -23,6 +23,7 @@ def get_sensor(sensor_id: str) -> dict:
 
 def get_sensor_data(sensor_id: str) -> dict:
     with sqlite3.connect(DATABASE_PATH) as connection:
+        connection.row_factory = sqlite3.Row
         cursor = connection.cursor()
         sql = "SELECT * FROM data WHERE sensor_id = ? ORDER BY created_at DESC LIMIT 1"
         cursor.execute(sql, (sensor_id,))
@@ -31,6 +32,7 @@ def get_sensor_data(sensor_id: str) -> dict:
 
 def get_data_for_sync(limit: int = 500, offset: int = 0) -> list[dict]:
     with sqlite3.connect(DATABASE_PATH) as connection:
+        connection.row_factory = sqlite3.Row
         cursor = connection.cursor()
         sql = "SELECT * FROM data WHERE synced_at IS NULL ORDER BY created_at DESC LIMIT ? OFFSET ?"
         cursor.execute(sql, (limit, offset))

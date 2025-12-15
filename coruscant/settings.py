@@ -11,6 +11,11 @@ SYNC_API_URL = os.getenv("SYNC_API_URL", "http://192.168.1.100/api/v1/sensors/lo
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://odin:odin@192.168.1.100/odin")
 DATABASE_PATH = os.getenv("DATABASE_PATH", "/var/lib/coruscant/db.sqlite")
 
+"""
+28000007176e41 - rad
+280000071766e4 - wf-1-in, 28000007173569 - wf-1-out
+28000007162e15 - wf-2-in, 28000007177269 - wf-1-out
+"""
 TEMP_SENSORS = {"28000007176e41", "28000007162e15", "28000007173569", "280000071766e4", "28000007177269"}
 
 VALVE_SENSOR_ID = "28000007173569"
