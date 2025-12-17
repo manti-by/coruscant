@@ -17,8 +17,16 @@ if TYPE_CHECKING:
 def get_sensor(sensor_id: str) -> dict:
     with psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor) as connection:
         cursor = connection.cursor()
-        sql = "SELECT * FROM sensors_sensor WHERE sensor_id = ? ORDER BY created_at DESC LIMIT 1"
+        sql = "SELECT * FROM sensors_sensor WHERE sensor_id = %s ORDER BY created_at DESC LIMIT 1"
         cursor.execute(sql, (sensor_id,))
+        return cursor.fetchone()
+
+
+def get_relay(relay_id: str) -> dict:
+    with psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor) as connection:
+        cursor = connection.cursor()
+        sql = "SELECT * FROM relays_relay WHERE relay_id = %s ORDER BY created_at DESC LIMIT 1"
+        cursor.execute(sql, (relay_id,))
         return cursor.fetchone()
 
 
