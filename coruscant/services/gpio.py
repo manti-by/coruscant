@@ -10,7 +10,7 @@ def set_gpio_state(gpio_pin: int, target_state: bool) -> bool:
     GPIO.setup(gpio_pin, GPIO.OUT)
     current_state = GPIO.input(gpio_pin)
     if current_state != target_state:
-        GPIO.output(gpio_pin, GPIO.HIGH if target_state else GPIO.LOW)
+        GPIO.output(gpio_pin, GPIO.LOW if target_state else GPIO.HIGH)
         return True
     return False
 
