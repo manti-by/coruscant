@@ -1,0 +1,42 @@
+name: Checks
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  checks:
+
+    name: Run checks
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Setup UV
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          uv sync --locked --all-extras --dev
+
+      - name: Run pre-commit hooks
+        run: |
+          uv run pre-commit run --all-files
+
+      - name: Run Pytest suite
+        run: |
+          uv run pytest --create-db --disable-warnings coruscant/
+        env:
+          DATABASE_PATH: /tmp/db.sqlite
