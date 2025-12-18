@@ -40,3 +40,4 @@ jobs:
           uv run pytest --disable-warnings coruscant/
         env:
           DATABASE_PATH: /tmp/db.sqlite
+          LOG_PATH: /tmp/events.log
