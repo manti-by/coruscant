@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from coruscant.exceptions import PostgresConnectionErrorException, SQLiteConnectionErrorException
 from coruscant.services.database import get_sensor, get_sensor_data
-from coruscant.services.gpio import close_gpio, set_gpio_state, setup_gpio
+from coruscant.services.gpio import set_gpio_state, setup_gpio
 from coruscant.settings import DATABASE_PATH, LOGGING, SERVO_MAP, SERVO_TEMP_HYSTERESIS
 
 

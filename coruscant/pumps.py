@@ -40,4 +40,3 @@ if __name__ == "__main__":
     target_state = get_target_state("PUMP-RD")
     if is_changed := set_gpio_state(gpio_pin=RD_PUMP_PIN, target_state=target_state):
         logger.info(f"Radiators pump is {'ON' if target_state else 'OFF'}")
-

@@ -5,7 +5,7 @@ from decimal import Decimal
 from pi1wire import NotFoundSensorException, Pi1Wire, Resolution
 
 from coruscant.exceptions import TempReadErrorException
-from coruscant.services.gpio import close_gpio, set_gpio_state, setup_gpio
+from coruscant.services.gpio import set_gpio_state, setup_gpio
 from coruscant.settings import (
     LOGGING,
     RELAY_COOL_PIN,

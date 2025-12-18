@@ -14,7 +14,7 @@ update:
 
 check:
 	git add .
-	uv run pre-commit run
+	uv run pre-commit run --all-files
 
 test:
 	export LOG_PATH=/tmp/odin.log && cd coruscant/ && uv run pytest
