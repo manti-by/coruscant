@@ -1,8 +1,8 @@
 # Coruscant IoT module
 
-[![Python3.13](https://img.shields.io/badge/Python-3.11-green)](https://www.python.org/downloads/release/python-3112/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-[![License](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/manti-by/Apollo/master/LICENSE)
+[![Python 3.13](https://img.shields.io/badge/python-3.13-green.svg)](https://www.python.org/downloads/release/python-3136/)
+[![Code style: ruff](https://img.shields.io/badge/ruff-enabled-informational?logo=ruff)](https://astral.sh/ruff)
+[![License](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/manti-by/pdw/master/LICENSE)
 
 ## About
 
@@ -18,16 +18,16 @@ Requirements:
 - Five DS18B20 sensors
 - 10x relays
 
-## Setup Coruscant application
+## Setup python and uv
 
 1. Install [Python 3.13](https://www.python.org/downloads/release/python-3136/) and
 create [a virtual environment](https://docs.python.org/3/library/venv.html) for the project.
 
-2. Clone sources and install pip packages
+2. Clone sources, switch to working directory and setup environment:
 
 ```shell
-mkdir /home/manti/app/
-git clone https://github.com/manti-by/coruscant.git app/
+git clone https://github.com/manti-by/coruscant.git
+cd coruscant/
 uv sync --all-extras
 ```
 
@@ -36,5 +36,5 @@ uv sync --all-extras
 4. Or run manually scripts
 
 ```shell
-uv run python -m apollo.sensors
+uv run python -m coruscant.sensors
 ```

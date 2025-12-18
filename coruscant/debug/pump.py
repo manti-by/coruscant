@@ -6,25 +6,21 @@ import RPi.GPIO as GPIO
 from coruscant.services.gpio import close_gpio, set_gpio_state, setup_gpio
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Set a GPIO pin state to on/off using BOARD numbering."
-    )
-    parser.add_argument(
-        "state",
-        choices=["on", "off"],
-        help="Desired state for the GPIO pin.",
-    )
-    parser.add_argument(
-        "pin",
-        type=int,
-        help="GPIO pin number (BOARD numbering).",
-    )
-    return parser.parse_args()
+parser = argparse.ArgumentParser(description="Set a GPIO pin state to on/off using BOARD numbering.")
+parser.add_argument(
+    "state",
+    choices=["on", "off"],
+    help="Desired state for the GPIO pin.",
+)
+parser.add_argument(
+    "pin",
+    type=int,
+    help="GPIO pin number (BOARD numbering).",
+)
 
 
 if __name__ == "__main__":
-    args = parse_args()
+    args = parser.parse_args()
 
     setup_gpio()
     try:
@@ -40,4 +36,3 @@ if __name__ == "__main__":
         sys.exit(1)
     finally:
         close_gpio()
-
