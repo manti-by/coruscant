@@ -65,5 +65,3 @@ if __name__ == "__main__":
 
     elif temp > TARGET_TEMP + VALVE_TEMP_HYSTERESIS:
         set_valve_mode(mode=MODE_COOL)
-
-    close_gpio()

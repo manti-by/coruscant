@@ -50,5 +50,3 @@ if __name__ == "__main__":
         except PostgresConnectionErrorException as e:
             logger.error(f"Cannot retrieve sensor {sensor_id}")
             exit(e.exit_code)
-
-    close_gpio()

@@ -37,6 +37,6 @@ jobs:
 
       - name: Run Pytest suite
         run: |
-          uv run pytest --create-db --disable-warnings coruscant/
+          uv run pytest --disable-warnings coruscant/
         env:
           DATABASE_PATH: /tmp/db.sqlite
