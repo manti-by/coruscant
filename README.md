@@ -25,16 +25,16 @@ create [a virtual environment](https://docs.python.org/3/library/venv.html) for 
 
 2. Clone sources, switch to working directory and setup environment:
 
-```shell
-git clone https://github.com/manti-by/coruscant.git
-cd coruscant/
-uv sync --all-extras
-```
+    ```shell
+    git clone https://github.com/manti-by/coruscant.git
+    cd coruscant/
+    uv sync --all-extras
+    ```
 
 3. Install crontabs from utils/crontab.conf
 
-4. Or run manually scripts
+4. Or manually run scripts
 
-```shell
-uv run python -m coruscant.sensors
-```
+    ```shell
+    uv run python -m coruscant.sensors
+    ```

@@ -4,11 +4,14 @@ from zoneinfo import ZoneInfo
 
 import RPi.GPIO as GPIO
 
+from coruscant.services.api import update_relay_state
 from coruscant.services.database import get_relay
 from coruscant.services.gpio import set_gpio_state, setup_gpio
 from coruscant.settings import (
     LOGGING,
+    RD_PUMP_ID,
     RD_PUMP_PIN,
+    WF_PUMP_ID,
     WF_PUMP_PIN,
 )
 
@@ -20,23 +23,20 @@ now = datetime.now(ZoneInfo("Europe/Minsk"))
 day, hour = now.strftime("%w"), now.strftime("%H")
 
 
-def get_target_state(relay_id: str) -> GPIO.LOW | GPIO.HIGH:
-    """
-    Relays have inverted logic for its states
-    if pump is ON you need to set LOW GPIO state
-    """
+def check_pump_relay(relay_id: str, relay_pin: int):
     relay = get_relay(relay_id=relay_id)
-    return GPIO.LOW if relay["context"]["schedule"][day][hour] else GPIO.HIGH
+    target_state = GPIO.LOW if relay["context"]["schedule"][day][hour] else GPIO.HIGH  # noqa
+
+    if set_gpio_state(gpio_pin=relay_pin, target_state=target_state):
+        state = "ON" if target_state else "OFF"
+        update_relay_state(relay_id=relay_id, state=state)
+        logger.info(f"Relay #{relay_id} state set to {state}")
 
 
 if __name__ == "__main__":
     setup_gpio()
+
     logger.info("Checking pumps state")
 
-    target_state = get_target_state("PUMP-WF-2")
-    if is_changed := set_gpio_state(gpio_pin=WF_PUMP_PIN, target_state=target_state):
-        logger.info(f"Water floor pump is {'ON' if target_state else 'OFF'}")
-
-    target_state = get_target_state("PUMP-RD")
-    if is_changed := set_gpio_state(gpio_pin=RD_PUMP_PIN, target_state=target_state):
-        logger.info(f"Radiators pump is {'ON' if target_state else 'OFF'}")
+    check_pump_relay(relay_id=WF_PUMP_ID, relay_pin=WF_PUMP_PIN)
+    check_pump_relay(relay_id=RD_PUMP_ID, relay_pin=RD_PUMP_PIN)

@@ -6,6 +6,8 @@ from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+API_URL = os.getenv("API_URL", "http://192.168.1.100/api/v1/")
+
 SYNC_API_URL = os.getenv("SYNC_API_URL", "http://192.168.1.100/api/v1/sensors/logs/")
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://odin:odin@192.168.1.100/odin")
@@ -22,6 +24,9 @@ VALVE_SENSOR_ID = "28000007173569"
 
 RELAY_HEAT_PIN = 15
 RELAY_COOL_PIN = 16
+
+WF_PUMP_ID = "PUMP-WF-2"
+RD_PUMP_ID = "PUMP-RD"
 
 WF_PUMP_PIN = 12
 RD_PUMP_PIN = 11
