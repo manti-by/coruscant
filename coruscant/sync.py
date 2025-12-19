@@ -1,5 +1,5 @@
 import logging.config
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import requests
 
@@ -17,9 +17,9 @@ if __name__ == "__main__":
             exit(0)
 
         for item in result:
-            # Add TZ info as the main server can use non UTC time zone
+            # Add TZ info as the main server can use non-UTC time zone
             created_at = datetime.strptime(item["created_at"], "%Y-%m-%d %H:%M:%S")
-            created_at = created_at.replace(tzinfo=timezone.utc).isoformat()
+            created_at = created_at.replace(tzinfo=UTC).isoformat()
 
             requests.post(
                 SYNC_API_URL,
