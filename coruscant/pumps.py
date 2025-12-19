@@ -25,7 +25,7 @@ day, hour = now.strftime("%w"), now.strftime("%H")
 
 def check_pump_relay(relay_id: str, relay_pin: int):
     relay = get_relay(relay_id=relay_id)
-    target_state = GPIO.LOW if relay["context"]["schedule"][day][hour] else GPIO.HIGH  # noqa
+    target_state = GPIO.HIGH if relay["context"]["schedule"][day][hour] else GPIO.LOW  # noqa
 
     if set_gpio_state(gpio_pin=relay_pin, target_state=target_state):
         state = "ON" if target_state else "OFF"
