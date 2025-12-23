@@ -69,6 +69,7 @@ exclude = [
 ignore = [
     "DJ001", # Null values for model char fields
     "ERA001",  # Disable eradicate (commented code removal)
+    "BLE001",  # Blind exceptions (Specific for the Coruscant project)
     # Disable Conflicting lint rules,
     # see https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     "W191",

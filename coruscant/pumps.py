@@ -3,6 +3,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import RPi.GPIO as GPIO
+from psycopg2 import Error
 
 from coruscant.services.api import update_relay_state
 from coruscant.services.database import get_relay
@@ -34,9 +35,19 @@ def check_pump_relay(relay_id: str, relay_pin: int):
 
 
 if __name__ == "__main__":
-    setup_gpio()
-
     logger.info("Checking pumps state")
 
-    check_pump_relay(relay_id=WF_PUMP_ID, relay_pin=WF_PUMP_PIN)
-    check_pump_relay(relay_id=RD_PUMP_ID, relay_pin=RD_PUMP_PIN)
+    try:
+        setup_gpio()
+
+        check_pump_relay(relay_id=WF_PUMP_ID, relay_pin=WF_PUMP_PIN)
+        check_pump_relay(relay_id=RD_PUMP_ID, relay_pin=RD_PUMP_PIN)
+
+    except Error as e:
+        logger.error(f"Database error: {e}")
+
+    except RuntimeError as e:
+        logger.error(f"GPIO error: {e}")
+
+    except Exception as e:
+        logger.critical(e)
