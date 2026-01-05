@@ -4,7 +4,7 @@ from coruscant.settings import API_URL
 
 
 def update_relay_state(relay_id: str, state: str) -> bool:
-    response = requests.post(
+    response = requests.patch(
         f"{API_URL}/relays/{relay_id}/",
         json={"context": {"state": state}},
         timeout=10,
