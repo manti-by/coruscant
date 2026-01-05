@@ -19,5 +19,7 @@ check:
 test:
 	export LOG_PATH=/tmp/odin.log && cd coruscant/ && uv run pytest
 
+ci: pip check test
+
 deploy:
 	scp -r [!.]* coruscant:/home/manti/www/coruscant/
