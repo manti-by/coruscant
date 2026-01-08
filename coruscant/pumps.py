@@ -3,10 +3,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import RPi.GPIO as GPIO
-from psycopg2 import Error
+from psycopg2 import Error as Psycopg2Error
 
-from coruscant.services.api import update_relay_state
-from coruscant.services.database import get_relay
+from coruscant.services.api import get_relay_state, update_relay_state
 from coruscant.services.gpio import set_gpio_state, setup_gpio
 from coruscant.settings import (
     LOGGING,
@@ -24,26 +23,18 @@ now = datetime.now(ZoneInfo("Europe/Minsk"))
 day, hour = now.strftime("%w"), now.strftime("%H")
 
 
-def check_pump_relay(relay_id: str, relay_pin: int):
-    relay = get_relay(relay_id=relay_id)
-    target_state = GPIO.HIGH if relay["context"]["schedule"][day][hour] else GPIO.LOW  # noqa
-
-    if set_gpio_state(gpio_pin=relay_pin, target_state=target_state):
-        state = "ON" if target_state else "OFF"
-        update_relay_state(relay_id=relay_id, state=state)
-        logger.info(f"Relay #{relay_id} state set to {state}")
-
-
-if __name__ == "__main__":
-    logger.info("Checking pumps state")
-
+def check_pump_relay(relay_id: str, relay_pin: int) -> bool:
     try:
-        setup_gpio()
+        if not (state := get_relay_state(relay_id=relay_id)):
+            return False
 
-        check_pump_relay(relay_id=WF_PUMP_ID, relay_pin=WF_PUMP_PIN)
-        check_pump_relay(relay_id=RD_PUMP_ID, relay_pin=RD_PUMP_PIN)
+        target_state = GPIO.HIGH if state == "ON" else GPIO.LOW  # noqa
+        if set_gpio_state(gpio_pin=relay_pin, target_state=target_state):
+            update_relay_state(relay_id=relay_id, state=state)
+            logger.info(f"Relay #{relay_id} state set to {state}")
+        return True
 
-    except Error as e:
+    except Psycopg2Error as e:
         logger.error(f"Database error: {e}")
 
     except RuntimeError as e:
@@ -51,3 +42,14 @@ if __name__ == "__main__":
 
     except Exception as e:
         logger.critical(e)
+    return False
+
+
+if __name__ == "__main__":
+    logger.info("Checking pumps state")
+    setup_gpio()
+
+    for pump_id, pump_pin in ((WF_PUMP_ID, WF_PUMP_PIN), (RD_PUMP_ID, RD_PUMP_PIN)):
+        # If a result is False fallback to ON state
+        if not check_pump_relay(relay_id=pump_id, relay_pin=pump_pin):
+            set_gpio_state(gpio_pin=pump_pin, target_state=GPIO.HIGH)
