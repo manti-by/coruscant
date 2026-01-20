@@ -1,0 +1,42 @@
+// Project-local debug tasks
+//
+// For more documentation on how to configure debug tasks,
+// see: https://zed.dev/docs/debugger
+[
+  {
+    "adapter": "Debugpy",
+    "label": "Run pytests",
+    "request": "launch",
+    "module": "pytest",
+    "command": "uv",
+    "command_arguments": ["run", "pytest"],
+    "args": ["$ZED_WORKTREE_ROOT"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "justMyCode": true,
+    "show_console": true,
+  },
+  {
+    "label": "FastAPI Server",
+    "adapter": "Debugpy",
+    "request": "launch",
+    "program": "uv",
+    "args": [
+      "run",
+      "uvicorn",
+      "coruscant.server:app",
+      "--host",
+      "0.0.0.0",
+      "--port",
+      "8000",
+    ],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "pathMappings": [
+      {
+        "localRoot": "${ZED_WORKTREE_ROOT}/",
+        "remoteRoot": "/",
+      },
+    ],
+    "justMyCode": true,
+    "show_console": true,
+  },
+]
