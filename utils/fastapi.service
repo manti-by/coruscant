@@ -1,0 +1,14 @@
+[Unit]
+Description=FastAPI server
+After=network.target
+
+[Service]
+User=manti
+Group=manti
+Restart=manti
+EnvironmentFile=/home/manti/www/coruscant/.env
+WorkingDirectory=/home/manti/www/coruscant
+ExecStart=/home/manti/www/coruscant/.venv/bin/uvicorn coruscant.server:app --host 0.0.0.0 --port 8000
+
+[Install]
+WantedBy=multi-user.target
