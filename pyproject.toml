@@ -1,14 +1,16 @@
 [project]
 name = "coruscant"
-version = "4.1.4"
+version = "4.2.0"
 requires-python = ">=3.13,<3.14"
 dependencies = [
     "Adafruit-DHT==1.4.0 ; platform_machine == 'armv7l'",
+    "kafka-python>=2.3.0",
     "pi1wire==0.3.0",
     "pre-commit>=4.5.0",
     "psycopg2==2.9.10",
     "requests==2.32.4",
     "RPi.GPIO==0.7.1",
+    "types-rpi-gpio>=0.7.0.20250801",
 ]
 
 [project.optional-dependencies]
@@ -22,20 +24,8 @@ dev = [
 exclude_dirs = []
 skips = ["B101", "B308", "B703"]
 
-[tool.black]
-line-length = 120
-target_version = ["py313"]
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.idea
-  | \.vscode
-  | \.pytest_cache
-  | \.ruff_cache
-  | \.venv
-)/
-'''
+[tool.ty.rules]
+unresolved-attribute = "ignore"
 
 [tool.ruff]
 line-length = 120

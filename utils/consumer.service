@@ -1,0 +1,16 @@
+[Unit]
+Description=Kafka consumer
+After=network.target
+
+[Service]
+User=manti
+Group=manti
+Restart=always
+WorkingDirectory=/home/manti/www/coruscant
+EnvironmentFile=/home/manti/www/coruscant/.env
+ExecStart=/home/manti/www/coruscant/.venv/bin/python -m coruscant.consumer
+StandardOutput=file:/var/log/coruscant/consumer-output.log
+StandardError=file:/var/log/coruscant/consumer-error.log
+
+[Install]
+WantedBy=multi-user.target
