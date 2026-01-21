@@ -32,4 +32,4 @@ if __name__ == "__main__":
             )
             update_sensor_data(sensor_id=item["sensor_id"], synced_at=datetime.now())
 
-        logger.info(f"Synced {len(result)} sensor records")
+        logger.debug(f"Synced {len(result)} sensor records")

@@ -48,7 +48,7 @@ class TestConsume:
 
         mock_set_gpio.assert_called_once()
         _, kwargs = mock_set_gpio.call_args
-        assert kwargs["gpio_pin"] == 11
+        assert kwargs["gpio_pin"] == 12
         mock_logger.info.assert_called_with("Relay 'PUMP-WF-2' state set to False")
 
     @mock.patch("coruscant.consumer.set_gpio_state")

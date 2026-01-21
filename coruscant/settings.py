@@ -28,8 +28,8 @@ VALVE_MAP = {
 }
 
 PUMP_MAP = {
-    11: "PUMP-WF-2",
-    12: "PUMP-RD",
+    11: "PUMP-RD",
+    12: "PUMP-WF-2",
 }
 
 SERVO_MAP = {

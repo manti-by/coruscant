@@ -12,7 +12,7 @@ class TestAPI:
     def test_get_relay_state__success(self, mock_logger, mock_requests):
         mock_response = mock.Mock()
         mock_response.ok = True
-        mock_response.json.return_value = {"state": {"status": "on"}}
+        mock_response.json.return_value = {"target_state": {"status": "on"}}
         mock_requests.get.return_value = mock_response
 
         state = get_relay_state(relay_id="relay_id")
@@ -71,7 +71,10 @@ class TestAPI:
     def test_get_relay_state__with_context_success(self, mock_logger, mock_requests):
         mock_response = mock.Mock()
         mock_response.ok = True
-        mock_response.json.return_value = {"state": {"status": "on"}, "context": {"schedule": {"0": {"11": "on"}}}}
+        mock_response.json.return_value = {
+            "target_state": {"status": "on"},
+            "context": {"schedule": {"0": {"11": "on"}}},
+        }
         mock_requests.get.return_value = mock_response
 
         result = get_relay_state(relay_id="relay_id")
