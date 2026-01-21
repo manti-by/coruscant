@@ -10,6 +10,8 @@ API_URL = os.getenv("API_URL", "http://192.168.1.100/api/v1")
 
 SYNC_API_URL = os.getenv("SYNC_API_URL", f"{API_URL}/sensors/logs/")
 
+KAFKA_SERVERS = os.getenv("KAFKA_SERVERS", "192.168.1.100:9092").split()
+
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://odin:odin@192.168.1.100/odin")
 DATABASE_PATH = os.getenv("DATABASE_PATH", "/var/lib/coruscant/db.sqlite")
 

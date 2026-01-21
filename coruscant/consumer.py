@@ -5,7 +5,7 @@ import RPi.GPIO as GPIO
 from kafka import KafkaConsumer
 
 from coruscant.services.gpio import set_gpio_state, setup_gpio
-from coruscant.settings import LOGGING, PUMP_MAP, SERVO_MAP, VALVE_MAP
+from coruscant.settings import KAFKA_SERVERS, LOGGING, PUMP_MAP, SERVO_MAP, VALVE_MAP
 
 
 logging.config.dictConfig(LOGGING)
@@ -20,7 +20,7 @@ RELAY_MAP = {
 
 def consume():
     setup_gpio()
-    consumer = KafkaConsumer("coruscant")
+    consumer = KafkaConsumer("coruscant", bootstrap_servers=KAFKA_SERVERS)
 
     for message in consumer:
         try:
