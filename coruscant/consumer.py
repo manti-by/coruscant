@@ -39,7 +39,7 @@ def consume():
             state = GPIO.HIGH if target_state else GPIO.LOW
 
             if set_gpio_state(gpio_pin=pin_id, target_state=state):
-                logger.info(f"Relay '{relay_id}' state set to {target_state}")
+                logger.info(f"Relay '{relay_id}' state set to {data['target_state']}")
             else:
                 logger.debug(f"Relay '{relay_id}' already in target state")
 

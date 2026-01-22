@@ -8,7 +8,7 @@ setup:
 deploy:
 	git pull
 	uv sync
-	sudo service coruscant restart
+	sudo service consumer restart
 
 pip:
 	uv sync --extra dev
@@ -25,6 +25,3 @@ test:
 	export LOG_PATH=/tmp/odin.log && cd coruscant/ && uv run pytest
 
 ci: pip check test
-
-deploy:
-	scp -r [!.]* coruscant:/home/manti/www/coruscant/
