@@ -29,7 +29,7 @@ def consume():
         try:
             data = json.loads(message.value)
             relay_id = data["relay_id"]
-            target_state = bool(data["target_state"])
+            target_state = data["target_state"] == "ON"
 
             if relay_id not in RELAY_MAP:
                 logger.error(f"Unknown relay_id: {relay_id}")
