@@ -5,6 +5,11 @@ setup:
 	sudo chown manti:manti /var/lib/coruscant/
 	sqlite3 /var/lib/coruscant/db.sqlite < utils/database.sql
 
+deploy:
+	git pull
+	uv sync
+	sudo service coruscant restart
+
 pip:
 	uv sync --extra dev
 
