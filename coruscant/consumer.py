@@ -20,7 +20,10 @@ RELAY_MAP = {
 
 def consume():
     setup_gpio()
-    consumer = KafkaConsumer("coruscant", bootstrap_servers=KAFKA_SERVERS)
+
+    consumer = KafkaConsumer(
+        "coruscant", bootstrap_servers=KAFKA_SERVERS, group_id="coruscant", enable_auto_commit=True
+    )
 
     for message in consumer:
         try:
