@@ -71,30 +71,30 @@ wheels = [
 
 [[package]]
 name = "coruscant"
-version = "4.2.0"
+version = "4.2.2"
 source = { virtual = "." }
 dependencies = [
     { name = "adafruit-dht", marker = "platform_machine == 'armv7l'" },
+    { name = "ipython" },
     { name = "kafka-python" },
     { name = "pi1wire" },
     { name = "pre-commit" },
     { name = "psycopg2" },
     { name = "requests" },
     { name = "rpi-gpio" },
-    { name = "types-rpi-gpio" },
 ]
 
 [package.optional-dependencies]
 dev = [
-    { name = "ipython" },
     { name = "pre-commit" },
     { name = "pytest" },
+    { name = "types-rpi-gpio" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "adafruit-dht", marker = "platform_machine == 'armv7l'", specifier = "==1.4.0" },
-    { name = "ipython", marker = "extra == 'dev'", specifier = ">=8.31.0" },
+    { name = "ipython", specifier = ">=8.31.0" },
     { name = "kafka-python", specifier = ">=2.3.0" },
     { name = "pi1wire", specifier = "==0.3.0" },
     { name = "pre-commit", specifier = ">=4.5.0" },
@@ -103,7 +103,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.1" },
     { name = "requests", specifier = "==2.32.4" },
     { name = "rpi-gpio", specifier = "==0.7.1" },
-    { name = "types-rpi-gpio", specifier = ">=0.7.0.20250801" },
+    { name = "types-rpi-gpio", marker = "extra == 'dev'", specifier = ">=0.7.0.20250801" },
 ]
 provides-extras = ["dev"]
 

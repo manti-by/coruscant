@@ -35,7 +35,7 @@ class TestConsumer:
         mock_set_gpio.assert_called_once()
         _, kwargs = mock_set_gpio.call_args
         assert kwargs["gpio_pin"] == 15
-        mock_logger.info.assert_called_with("Relay 'VALVE-OPEN' state set to ON")
+        mock_logger.info.assert_called_with("Relay #VALVE-OPEN state set to ON")
 
     @mock.patch("coruscant.consumer.set_gpio_state")
     @mock.patch("coruscant.consumer.logger")
@@ -49,7 +49,7 @@ class TestConsumer:
         mock_set_gpio.assert_called_once()
         _, kwargs = mock_set_gpio.call_args
         assert kwargs["gpio_pin"] == 12
-        mock_logger.info.assert_called_with("Relay 'PUMP-WF-2' state set to OFF")
+        mock_logger.info.assert_called_with("Relay #PUMP-WF-2 state set to OFF")
 
     @mock.patch("coruscant.consumer.set_gpio_state")
     @mock.patch("coruscant.consumer.logger")
@@ -63,7 +63,7 @@ class TestConsumer:
         mock_set_gpio.assert_called_once()
         _, kwargs = mock_set_gpio.call_args
         assert kwargs["gpio_pin"] == 16
-        mock_logger.debug.assert_called_with("Relay 'VALVE-CLOSED' already in target state")
+        mock_logger.debug.assert_called_with("Relay #VALVE-CLOSED already in a target state")
 
     @mock.patch("coruscant.consumer.logger")
     def test_consume__invalid_json(self, mock_logger):

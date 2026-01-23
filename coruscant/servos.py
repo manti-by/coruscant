@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
-    logger.info("Checking servos state")
+    logger.debug("Checking servos state")
     setup_gpio()
 
     for servo_pin, relay_id in SERVO_MAP.items():

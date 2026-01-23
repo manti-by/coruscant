@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
-    logger.info("Checking pumps state")
+    logger.debug("Checking pumps state")
     setup_gpio()
 
     for pump_pin, pump_id in PUMP_MAP.items():

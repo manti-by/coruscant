@@ -24,7 +24,6 @@ def consume():
     consumer = KafkaConsumer(
         "coruscant", bootstrap_servers=KAFKA_SERVERS, group_id="coruscant", enable_auto_commit=True
     )
-
     for message in consumer:
         try:
             data = json.loads(message.value)
@@ -39,9 +38,9 @@ def consume():
             state = GPIO.HIGH if target_state else GPIO.LOW
 
             if set_gpio_state(gpio_pin=pin_id, target_state=state):
-                logger.info(f"Relay '{relay_id}' state set to {data['target_state']}")
+                logger.info(f"Relay #{relay_id} state set to {data['target_state']}")
             else:
-                logger.debug(f"Relay '{relay_id}' already in target state")
+                logger.debug(f"Relay #{relay_id} already in a target state")
 
         except json.JSONDecodeError as e:
             logger.error(f"Failed to decode JSON: {e}")

@@ -77,7 +77,7 @@ LOGGING = {
         },
     },
     "loggers": {
-        "": {"handlers": ["console", "file", "http"], "level": "INFO", "propagate": True},
+        "": {"handlers": ["console", "file", "http"], "level": "DEBUG", "propagate": True},
         "kafka": {"handlers": ["console", "file"], "level": "WARNING", "propagate": True},
     },
 }
