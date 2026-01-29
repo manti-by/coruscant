@@ -2,8 +2,8 @@ import logging.config
 
 import RPi.GPIO as GPIO
 
-from coruscant.services.api import get_relay_state, update_relay_state
 from coruscant.services.gpio import set_gpio_state
+from coruscant.services.relay_status import get_relay_state, update_relay_state
 from coruscant.settings import LOGGING
 
 
