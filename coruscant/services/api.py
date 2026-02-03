@@ -24,20 +24,3 @@ def get_relay_state(relay_id: str) -> str | None:
     except RequestException as e:
         logger.error(e)
     return None
-
-
-def update_relay_state(relay_id: str, state: str) -> bool:
-    try:
-        response = requests.patch(
-            f"{API_URL}/relays/{relay_id}/",
-            json={"context": {"state": state}},
-            timeout=10,
-        )
-
-        if response.ok:
-            return response.ok
-        logger.error(response.text)
-
-    except RequestException as e:
-        logger.error(e)
-    return False
