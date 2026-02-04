@@ -4,6 +4,7 @@ import logging.config
 import RPi.GPIO as GPIO
 from kafka import KafkaConsumer
 
+from coruscant.services.api import update_relay_state
 from coruscant.services.gpio import set_gpio_state, setup_gpio
 from coruscant.settings import KAFKA_SERVERS, LOGGING, PUMP_MAP, SERVO_MAP, VALVE_MAP
 
@@ -38,6 +39,7 @@ def consume():
             state = GPIO.HIGH if target_state else GPIO.LOW
 
             if set_gpio_state(gpio_pin=pin_id, target_state=state):
+                update_relay_state(relay_id=relay_id, state=target_state)
                 logger.info(f"Relay #{relay_id} state set to {data['target_state']}")
             else:
                 logger.debug(f"Relay #{relay_id} already in a target state")

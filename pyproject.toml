@@ -7,10 +7,10 @@ dependencies = [
     "kafka-python>=2.3.0",
     "pi1wire==0.3.0",
     "pre-commit>=4.5.0",
-    "psycopg2==2.9.10",
     "requests==2.32.4",
     "RPi.GPIO==0.7.1",
     "ipython>=8.31.0",
+    "psycopg2-binary>=2.9.11",
 ]
 
 [project.optional-dependencies]
