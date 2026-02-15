@@ -1,3 +1,5 @@
+import inspect
+import logging
 import os
 from decimal import Decimal
 from pathlib import Path
@@ -46,13 +48,40 @@ VALVE_TEMP_HYSTERESIS = Decimal("0.5")
 
 logs_api = urlparse(os.getenv("LOGS_API_URL", "http://192.168.1.100/api/v1/core/logs/"))
 
+
+class VerboseFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        if record.exc_info:
+            record.stack_info = self._get_stack_info()
+        return super().format(record)
+
+    def _get_stack_info(self) -> str | None:
+        try:
+            frame = inspect.currentframe()
+            if frame is None:
+                return None
+            for _ in range(3):
+                if frame.f_back is None:
+                    break
+                frame = frame.f_back
+            if frame is None:
+                return None
+            local_vars = {k: v for k, v in frame.f_locals.items() if not k.startswith("__") and not callable(v)}
+            if not local_vars:
+                return None
+            return ", ".join(f"{k}={v!r}" for k, v in local_vars.items())
+        except Exception:
+            return None
+
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "standard": {
-            "format": "%(asctime)s %(levelname)-6s: %(filename)-8s - %(message)s",
+            "format": "%(asctime)s %(levelname)-6s: %(filename)-8s - %(message)s%(exc_info)s%(stack_info)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
+            "()": VerboseFormatter,
         }
     },
     "handlers": {
