@@ -4,19 +4,52 @@
 
 Coruscant is a Raspberry Pi–based IoT satellite for the ODIN server.
 It reads DS18B20 temperature sensors, controls pumps, valves, relays and servos, stores data locally in 
-SQLite/PostgreSQL, and synchronizes a state with the ODIN API.
+SQLite/PostgreSQL, and synchronizes relay states with ODIN via Kafka messages.
 
 ## Project Structure
 
 - `coruscant/settings.py`: Core configuration, paths, logging setup and external API URLs
 - `coruscant/sensors.py`: Reading DS18B20 temperature sensors
 - `coruscant/pumps.py`, `coruscant/servos.py`, `coruscant/valve.py`: Hardware control logic
-- `coruscant/services/api.py`: Communication with ODIN HTTP API
+- `coruscant/services/kafka.py`: Kafka producer for sending relay status messages
+- `coruscant/services/relay_status.py`: Relay status management using Kafka
 - `coruscant/services/database.py`: Local database utilities
 - `coruscant/services/gpio.py`: GPIO helpers for Raspberry Pi
 - `coruscant/sync.py`: Synchronization of sensor data with ODIN
 - `coruscant/tests/`: Pytest tests for services and core logic
 - `utils/`: Crontab configuration and database schema (`crontab.conf`, `database.sql`)
+
+## Git Workflow
+
+This project adheres strictly to the Git Flow branching model. AI agents must follow these guidelines:
+
+### Main Branch:
+
+- The `master` branch always contains production-ready, stable code.
+- Never commit directly to `master`.
+- Do not use `git push --force` on the `master` branch.
+- Do not merge branches into `master` without explicit approval.
+
+### Feature Branches:
+
+- Create feature branches using the naming convention `<agent-name>/feature/<issue-id>-<descriptive-name>` (e.g., `opencode/feature/ODIN-10-add-user-authentication`).
+- Use the [Conventional Commits](https://www.conventionalcommits.org) specification for commit messages (e.g., `feat:`, `fix:`, `docs:`).
+- Ensure all local tests pass before committing.
+- Use `git push --force-with-lease` if needed on your feature branch, but never on `master`.
+
+### Pull Requests (PRs):
+
+- Open a Pull Request for every completed feature branch.
+- PRs must be reviewed and pass all CI checks before merging.
+- The PR title should follow the Conventional Commits specification.
+
+## Linear Workflow
+
+- When starting implementation of any issue from `TODO`, move it to `In Progress` column.
+- When feature is completed and PR is created, move it to `In Review` column.
+- After approval, merge the feature branch into `master` and move the issue to `Done` column.
+- If the feature branch is not merged into `master`, move it back to `In Progress` column.
+- If the feature branch is closed without merging, move it to `Closed` column.
 
 ## Development Commands
 
@@ -100,11 +133,11 @@ uv run bandit -c pyproject.toml .
 
 - Use `pytest` for tests (`coruscant/tests/`)
 - Focus tests on:
-  - External integrations (`services.api`, `services.database`, `services.gpio`)
+  - External integrations (`services.kafka`, `services.database`, `services.gpio`)
   - Hardware control logic (`pumps`, `servos`, `valve`)
   - Synchronization flows (`sync`)
 - Use mocks for:
-  - HTTP calls (e.g. `requests` in `services.api`)
+  - Kafka producer calls (e.g. `kafka.KafkaProducer` in `services.kafka`)
   - GPIO access
   - Real databases for unit-level tests
 - Write descriptive test names with `__` separating scenario parts (e.g. `test_update_relay_state__failed`)
@@ -126,7 +159,8 @@ uv run bandit -c pyproject.toml .
 
 Environment is controlled primarily via `coruscant/settings.py`:
 
-- `API_URL`, `SYNC_API_URL`: ODIN API endpoints
+- `API_URL`, `SYNC_API_URL`: ODIN API endpoints (legacy)
+- `KAFKA_SERVERS`: Kafka bootstrap servers for relay status messages
 - `DATABASE_URL`, `DATABASE_PATH`: Remote PostgreSQL and local SQLite paths
 - `LOG_PATH`, `LOGS_API_URL`: Local log file and remote log collector URL
 - Hardware-related constants for sensor IDs, relay pins, and servo mapping
