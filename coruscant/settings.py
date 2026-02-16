@@ -68,7 +68,7 @@ class VerboseFormatter(logging.Formatter):
             if not local_vars:
                 return None
             return ", ".join(f"{k}={v!r}" for k, v in local_vars.items())
-        except Exception:
+        except (AttributeError, TypeError):
             return None
         finally:
             del frame
