@@ -51,19 +51,17 @@ logs_api = urlparse(os.getenv("LOGS_API_URL", "http://192.168.1.100/api/v1/core/
 
 class VerboseFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
+        result = super().format(record)
         if record.exc_info:
-            record.stack_info = self._get_stack_info()
-        return super().format(record)
+            extra = self._get_stack_info()
+            if extra:
+                result = f"{result}\nLocal variables: {extra}"
+        return result
 
     def _get_stack_info(self) -> str | None:
+        """Collect local variables from the innermost exception frame."""
         try:
-            frame = inspect.currentframe()
-            if frame is None:
-                return None
-            for _ in range(3):
-                if frame.f_back is None:
-                    break
-                frame = frame.f_back
+            frame = inspect.trace()[-1][0] if inspect.trace() else None
             if frame is None:
                 return None
             local_vars = {k: v for k, v in frame.f_locals.items() if not k.startswith("__") and not callable(v)}
@@ -72,6 +70,8 @@ class VerboseFormatter(logging.Formatter):
             return ", ".join(f"{k}={v!r}" for k, v in local_vars.items())
         except Exception:
             return None
+        finally:
+            del frame
 
 
 LOGGING = {
@@ -79,7 +79,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "standard": {
-            "format": "%(asctime)s %(levelname)-6s: %(filename)-8s - %(message)s%(exc_info)s%(stack_info)s",
+            "format": "%(asctime)s %(levelname)-6s: %(filename)-8s - %(message)",
             "datefmt": "%Y-%m-%d %H:%M:%S",
             "()": VerboseFormatter,
         }
