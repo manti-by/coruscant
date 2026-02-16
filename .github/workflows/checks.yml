@@ -2,12 +2,10 @@ name: Checks
 
 on:
   push:
-    branches:
-      - master
+  pull_request:
 
 jobs:
   checks:
-
     name: Run checks
 
     runs-on: ubuntu-latest
