@@ -23,9 +23,9 @@ def check_relay_state(relay_id: str, relay_pin: int) -> bool:
         return True
 
     except RuntimeError as e:
-        logger.error(f"GPIO error: {e}")
+        logger.exception(f"GPIO error: {e}")
 
     except Exception as e:
-        logger.critical(e)
+        logger.exception(e)
 
     return False

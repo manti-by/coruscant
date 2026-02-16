@@ -3,6 +3,8 @@ from decimal import Decimal
 from pathlib import Path
 from urllib.parse import urlparse
 
+from coruscant.services.logging import VerboseFormatter
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -46,6 +48,7 @@ VALVE_TEMP_HYSTERESIS = Decimal("0.5")
 
 logs_api = urlparse(os.getenv("LOGS_API_URL", "http://192.168.1.100/api/v1/core/logs/"))
 
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -53,6 +56,7 @@ LOGGING = {
         "standard": {
             "format": "%(asctime)s %(levelname)-6s: %(filename)-8s - %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
+            "()": VerboseFormatter,
         }
     },
     "handlers": {

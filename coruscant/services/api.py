@@ -19,10 +19,10 @@ def get_relay_state(relay_id: str) -> str | None:
 
         if response.ok:
             return response.json().get("target_state")
-        logger.error(response.text)
+        logger.exception(response.text)
 
     except RequestException as e:
-        logger.error(e)
+        logger.exception(e)
     return None
 
 
@@ -36,8 +36,8 @@ def update_relay_state(relay_id: str, state: str) -> bool:
 
         if response.ok:
             return response.ok
-        logger.error(response.text)
+        logger.exception(response.text)
 
     except RequestException as e:
-        logger.error(e)
+        logger.exception(e)
     return False

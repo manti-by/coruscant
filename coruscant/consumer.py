@@ -32,7 +32,7 @@ def consume():
             target_state = data["target_state"] == "ON"
 
             if relay_id not in RELAY_MAP:
-                logger.error(f"Unknown relay_id: {relay_id}")
+                logger.exception(f"Unknown relay_id: {relay_id}")
                 continue
 
             pin_id = RELAY_MAP[relay_id]
@@ -45,13 +45,13 @@ def consume():
                 logger.debug(f"Relay #{relay_id} already in a target state")
 
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to decode JSON: {e}")
+            logger.exception(f"Failed to decode JSON: {e}")
 
         except KeyError as e:
-            logger.error(f"Missing required field: {e}")
+            logger.exception(f"Missing required field: {e}")
 
         except Exception as e:
-            logger.critical(e)
+            logger.exception(e)
 
 
 if __name__ == "__main__":

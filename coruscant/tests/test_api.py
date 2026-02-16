@@ -19,7 +19,7 @@ class TestAPI:
 
         assert state == {"status": "on"}
         mock_requests.get.assert_called_once_with(f"{API_URL}/relays/relay_id/", timeout=10)
-        assert mock_logger.error.call_count == 0
+        assert mock_logger.exception.call_count == 0
 
     @mock.patch("coruscant.services.api.requests")
     @mock.patch("coruscant.services.api.logger")
@@ -33,7 +33,7 @@ class TestAPI:
 
         assert state is None
         mock_requests.get.assert_called_once_with(f"{API_URL}/relays/relay_id/", timeout=10)
-        assert mock_logger.error.call_count == 1
+        assert mock_logger.exception.call_count == 1
 
     @mock.patch("coruscant.services.api.requests")
     @mock.patch("coruscant.services.api.logger")
@@ -44,7 +44,7 @@ class TestAPI:
 
         assert state is None
         mock_requests.get.assert_called_once_with(f"{API_URL}/relays/relay_id/", timeout=10)
-        assert mock_logger.error.call_count == 1
+        assert mock_logger.exception.call_count == 1
 
     @mock.patch("coruscant.services.api.requests")
     @mock.patch("coruscant.services.api.logger")
@@ -54,7 +54,7 @@ class TestAPI:
 
         update_relay_state(relay_id="relay_id", state="state")
         assert mock_requests.patch.call_count == 1
-        assert mock_logger.error.call_count == 0
+        assert mock_logger.exception.call_count == 0
 
     @mock.patch("coruscant.services.api.requests")
     @mock.patch("coruscant.services.api.logger")
@@ -64,7 +64,7 @@ class TestAPI:
 
         update_relay_state(relay_id="relay_id", state="state")
         assert mock_requests.patch.call_count == 1
-        assert mock_logger.error.call_count == 1
+        assert mock_logger.exception.call_count == 1
 
     @mock.patch("coruscant.services.api.requests")
     @mock.patch("coruscant.services.api.logger")
@@ -80,7 +80,7 @@ class TestAPI:
         result = get_relay_state(relay_id="relay_id")
 
         assert result == {"status": "on"}
-        assert mock_logger.error.call_count == 0
+        assert mock_logger.exception.call_count == 0
 
     @mock.patch("coruscant.services.api.requests")
     @mock.patch("coruscant.services.api.logger")
