@@ -1,9 +1,9 @@
-import inspect
-import logging
 import os
 from decimal import Decimal
 from pathlib import Path
 from urllib.parse import urlparse
+
+from coruscant.services.logging import VerboseFormatter
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -49,37 +49,12 @@ VALVE_TEMP_HYSTERESIS = Decimal("0.5")
 logs_api = urlparse(os.getenv("LOGS_API_URL", "http://192.168.1.100/api/v1/core/logs/"))
 
 
-class VerboseFormatter(logging.Formatter):
-    def format(self, record: logging.LogRecord) -> str:
-        result = super().format(record)
-        if record.exc_info:
-            extra = self._get_stack_info()
-            if extra:
-                result = f"{result}\nLocal variables: {extra}"
-        return result
-
-    def _get_stack_info(self) -> str | None:
-        """Collect local variables from the innermost exception frame."""
-        try:
-            frame = inspect.trace()[-1][0] if inspect.trace() else None
-            if frame is None:
-                return None
-            local_vars = {k: v for k, v in frame.f_locals.items() if not k.startswith("__") and not callable(v)}
-            if not local_vars:
-                return None
-            return ", ".join(f"{k}={v!r}" for k, v in local_vars.items())
-        except (AttributeError, TypeError):
-            return None
-        finally:
-            del frame
-
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "standard": {
-            "format": "%(asctime)s %(levelname)-6s: %(filename)-8s - %(message)",
+            "format": "%(asctime)s %(levelname)-6s: %(filename)-8s - %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
             "()": VerboseFormatter,
         }

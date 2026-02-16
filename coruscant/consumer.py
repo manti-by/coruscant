@@ -32,7 +32,7 @@ def consume():
             target_state = data["target_state"] == "ON"
 
             if relay_id not in RELAY_MAP:
-                logger.error(f"Unknown relay_id: {relay_id}")
+                logger.exception(f"Unknown relay_id: {relay_id}")
                 continue
 
             pin_id = RELAY_MAP[relay_id]
