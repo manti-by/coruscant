@@ -27,10 +27,10 @@ if __name__ == "__main__":
             logger.warning(f"Sensor {sensor_id} not found")
 
         except FailedToChangeResolutionException:
-            logger.error(f"Can't change resolution for sensor {sensor_id}")
+            logger.exception(f"Can't change resolution for sensor {sensor_id}")
 
         except OSError:
-            logger.error(f"Can't read sensor {sensor_id} data")
+            logger.exception(f"Can't read sensor {sensor_id} data")
 
         except Exception as e:
-            logger.critical(e)
+            logger.exception(e)
