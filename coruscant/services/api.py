@@ -18,7 +18,9 @@ def get_relay_state(relay_id: str) -> str | None:
         )
 
         if response.ok:
-            return response.json().get("target_state")
+            target_state = response.json().get("target_state")
+            logger.debug(f"get_relay_state: relay_id={relay_id}, target_state={target_state}")
+            return target_state
         logger.exception(response.text)
 
     except RequestException as e:
@@ -27,6 +29,7 @@ def get_relay_state(relay_id: str) -> str | None:
 
 
 def update_relay_state(relay_id: str, state: str) -> bool:
+    logger.debug(f"update_relay_state: relay_id={relay_id}, state={state}, state_type={type(state)}")
     try:
         response = requests.patch(
             f"{API_URL}/relays/{relay_id}/",
