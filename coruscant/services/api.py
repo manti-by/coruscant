@@ -3,7 +3,7 @@ import logging.config
 import requests
 from requests.exceptions import RequestException
 
-from coruscant.settings import API_URL, LOGGING
+from coruscant.settings import API_TOKEN, API_URL, LOGGING
 
 
 logging.config.dictConfig(LOGGING)
@@ -14,6 +14,7 @@ def get_relay_state(relay_id: str) -> str | None:
     try:
         response = requests.get(
             f"{API_URL}/relays/{relay_id}/",
+            headers={"Authorization": f"Token {API_TOKEN}"},
             timeout=10,
         )
 
@@ -34,6 +35,7 @@ def update_relay_state(relay_id: str, state: str) -> bool:
         response = requests.patch(
             f"{API_URL}/relays/{relay_id}/",
             json={"context": {"state": state}},
+            headers={"Authorization": f"Token {API_TOKEN}"},
             timeout=10,
         )
 

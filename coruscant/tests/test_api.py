@@ -3,7 +3,7 @@ from unittest import mock
 from requests.exceptions import RequestException
 
 from coruscant.services.api import get_relay_state, update_relay_state
-from coruscant.settings import API_URL
+from coruscant.settings import API_TOKEN, API_URL
 
 
 class TestAPI:
@@ -18,7 +18,9 @@ class TestAPI:
         state = get_relay_state(relay_id="relay_id")
 
         assert state == {"status": "on"}
-        mock_requests.get.assert_called_once_with(f"{API_URL}/relays/relay_id/", timeout=10)
+        mock_requests.get.assert_called_once_with(
+            f"{API_URL}/relays/relay_id/", headers={"Authorization": f"Token {API_TOKEN}"}, timeout=10
+        )
         assert mock_logger.exception.call_count == 0
 
     @mock.patch("coruscant.services.api.requests")
@@ -32,7 +34,9 @@ class TestAPI:
         state = get_relay_state(relay_id="relay_id")
 
         assert state is None
-        mock_requests.get.assert_called_once_with(f"{API_URL}/relays/relay_id/", timeout=10)
+        mock_requests.get.assert_called_once_with(
+            f"{API_URL}/relays/relay_id/", headers={"Authorization": f"Token {API_TOKEN}"}, timeout=10
+        )
         assert mock_logger.exception.call_count == 1
 
     @mock.patch("coruscant.services.api.requests")
@@ -43,7 +47,9 @@ class TestAPI:
         state = get_relay_state(relay_id="relay_id")
 
         assert state is None
-        mock_requests.get.assert_called_once_with(f"{API_URL}/relays/relay_id/", timeout=10)
+        mock_requests.get.assert_called_once_with(
+            f"{API_URL}/relays/relay_id/", headers={"Authorization": f"Token {API_TOKEN}"}, timeout=10
+        )
         assert mock_logger.exception.call_count == 1
 
     @mock.patch("coruscant.services.api.requests")
@@ -93,4 +99,6 @@ class TestAPI:
         state = get_relay_state(relay_id="relay_id")
 
         assert state is None
-        mock_requests.get.assert_called_once_with(f"{API_URL}/relays/relay_id/", timeout=10)
+        mock_requests.get.assert_called_once_with(
+            f"{API_URL}/relays/relay_id/", headers={"Authorization": f"Token {API_TOKEN}"}, timeout=10
+        )
