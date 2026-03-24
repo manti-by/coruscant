@@ -44,8 +44,10 @@ SERVO_MAP = {
 
 SERVO_TEMP_HYSTERESIS = Decimal("0.5")
 
-VALVE_ACT_TIMEOUT = 60
+# TODO: Read from a database
+VALVE_TARGET_TEMP = Decimal("27.0")
 VALVE_TEMP_HYSTERESIS = Decimal("0.5")
+VALVE_ACT_TIMEOUT = 60
 
 logs_api = urlparse(os.getenv("LOGS_API_URL", "http://192.168.1.100/api/v1/core/logs/"))
 

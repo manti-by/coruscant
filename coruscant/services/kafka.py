@@ -23,18 +23,30 @@ class MessageType(Enum):
 logging.config.dictConfig(LOGGING)
 logger = logging.getLogger(__name__)
 
-producer = KafkaProducer(
-    bootstrap_servers=KAFKA_SERVERS,
-    value_serializer=lambda v: json.dumps(v).encode("utf-8"),
-    key_serializer=lambda k: k.encode("utf-8") if k else None,
-)
+kafka_producer: KafkaProducer | None = None
+
+
+def get_producer() -> KafkaProducer:
+    global kafka_producer
+
+    if kafka_producer is None:
+        try:
+            kafka_producer = KafkaProducer(
+                bootstrap_servers=KAFKA_SERVERS,
+                value_serializer=lambda v: json.dumps(v).encode("utf-8"),
+                key_serializer=lambda k: k.encode("utf-8") if k else None,
+            )
+        except KafkaError as e:
+            logger.error(f"Failed to connect to Kafka brokers {KAFKA_SERVERS}: {e}")
+            raise
+    return kafka_producer
 
 
 def send_message(topic: str, message: dict, key: str | None = None) -> bool:
     try:
+        producer = get_producer()
         future = producer.send(topic, value=message, key=key)
         record_metadata = future.get(timeout=10)
-        producer.close()
 
         logger.info(
             f"Message sent to topic {record_metadata.topic} "
@@ -63,7 +75,7 @@ def update_relay_state(relay_id: str, state: str) -> bool:
 def update_sensor_data(sensor_id: str, temp: Decimal, humidity: int | None = None) -> bool:
     message = {
         "type": MessageType.SENSOR_DATA_UPDATE.value,
-        "data": {"sensor_id": sensor_id, "temp": temp, "humidity": humidity},
+        "data": {"sensor_id": sensor_id, "temp": str(temp), "humidity": humidity},
         "timestamp": datetime.now(UTC).isoformat(),
     }
     return send_message(topic=KAFKA_TOPIC, key=PartitionKey.SENSORS.value, message=message)
