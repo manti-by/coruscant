@@ -72,8 +72,8 @@ class TestConsumer:
         with mock.patch("coruscant.consumer.KafkaConsumer", return_value=mock_consumer):
             consume()
 
-        mock_logger.error.assert_called_once()
-        call_args = mock_logger.error.call_args[0][0]
+        mock_logger.exception.assert_called_once()
+        call_args = mock_logger.exception.call_args[0][0]
         assert "Failed to decode JSON" in call_args
 
     @mock.patch("coruscant.consumer.logger")
@@ -83,8 +83,8 @@ class TestConsumer:
         with mock.patch("coruscant.consumer.KafkaConsumer", return_value=mock_consumer):
             consume()
 
-        mock_logger.error.assert_called_once()
-        call_args = mock_logger.error.call_args[0][0]
+        mock_logger.exception.assert_called_once()
+        call_args = mock_logger.exception.call_args[0][0]
         assert "Missing required field" in call_args
 
     @mock.patch("coruscant.consumer.logger")
@@ -94,8 +94,8 @@ class TestConsumer:
         with mock.patch("coruscant.consumer.KafkaConsumer", return_value=mock_consumer):
             consume()
 
-        mock_logger.error.assert_called_once()
-        call_args = mock_logger.error.call_args[0][0]
+        mock_logger.exception.assert_called_once()
+        call_args = mock_logger.exception.call_args[0][0]
         assert "Missing required field" in call_args
 
     @mock.patch("coruscant.consumer.logger")
@@ -105,7 +105,7 @@ class TestConsumer:
         with mock.patch("coruscant.consumer.KafkaConsumer", return_value=mock_consumer):
             consume()
 
-        mock_logger.error.assert_called_once_with("Unknown relay_id: unknown_relay")
+        mock_logger.exception.assert_called_once_with("Unknown relay_id: unknown_relay")
 
 
 class TestRelayMap:

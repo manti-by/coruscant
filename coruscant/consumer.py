@@ -5,6 +5,7 @@ import RPi.GPIO as GPIO
 from kafka import KafkaConsumer
 
 from coruscant.services.gpio import set_gpio_state, setup_gpio
+from coruscant.services.kafka import update_relay_state
 from coruscant.settings import KAFKA_SERVERS, LOGGING, PUMP_MAP, SERVO_MAP, VALVE_MAP
 
 
@@ -31,25 +32,26 @@ def consume():
             target_state = data["target_state"] == "ON"
 
             if relay_id not in RELAY_MAP:
-                logger.error(f"Unknown relay_id: {relay_id}")
+                logger.exception(f"Unknown relay_id: {relay_id}")
                 continue
 
             pin_id = RELAY_MAP[relay_id]
             state = GPIO.HIGH if target_state else GPIO.LOW
 
             if set_gpio_state(gpio_pin=pin_id, target_state=state):
+                update_relay_state(relay_id=relay_id, state=data["target_state"])
                 logger.info(f"Relay #{relay_id} state set to {data['target_state']}")
             else:
                 logger.debug(f"Relay #{relay_id} already in a target state")
 
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to decode JSON: {e}")
+            logger.exception(f"Failed to decode JSON: {e}")
 
         except KeyError as e:
-            logger.error(f"Missing required field: {e}")
+            logger.exception(f"Missing required field: {e}")
 
         except Exception as e:
-            logger.critical(e)
+            logger.exception(e)
 
 
 if __name__ == "__main__":

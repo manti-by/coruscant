@@ -24,7 +24,7 @@ class TestCheckPumpRelay:
         mock_get.assert_called_once_with(relay_id="pump_1")
         mock_set.assert_called_once()
         mock_update.assert_called_once_with(relay_id="pump_1", state={"status": "on"})
-        mock_logger.error.assert_not_called()
+        mock_logger.exception.assert_not_called()
 
     @mock.patch("coruscant.services.relay.get_relay_state")
     @mock.patch("coruscant.services.relay.set_gpio_state")
@@ -40,7 +40,7 @@ class TestCheckPumpRelay:
         mock_get.assert_called_once_with(relay_id="pump_2")
         mock_set.assert_called_once()
         mock_update.assert_called_once_with(relay_id="pump_2", state={"status": "off"})
-        mock_logger.error.assert_not_called()
+        mock_logger.exception.assert_not_called()
 
     @mock.patch("coruscant.services.relay.get_relay_state")
     @mock.patch("coruscant.services.relay.logger")
@@ -51,7 +51,7 @@ class TestCheckPumpRelay:
 
         assert result is False
         mock_get.assert_called_once_with(relay_id="pump_1")
-        mock_logger.error.assert_not_called()
+        mock_logger.exception.assert_not_called()
 
     @mock.patch("coruscant.services.relay.get_relay_state")
     @mock.patch("coruscant.services.relay.set_gpio_state")
@@ -67,7 +67,7 @@ class TestCheckPumpRelay:
         mock_get.assert_called_once_with(relay_id="pump_1")
         mock_set.assert_called_once()
         mock_update.assert_not_called()
-        mock_logger.error.assert_not_called()
+        mock_logger.exception.assert_not_called()
 
     @mock.patch("coruscant.services.relay.get_relay_state")
     @mock.patch("coruscant.services.relay.logger")
@@ -78,7 +78,7 @@ class TestCheckPumpRelay:
         result = check_relay_state(relay_id="pump_1", relay_pin=11)
 
         assert result is False
-        mock_logger.error.assert_called_once()
+        mock_logger.exception.assert_called_once()
 
     @mock.patch("coruscant.services.relay.get_relay_state")
     @mock.patch("coruscant.services.relay.logger")
@@ -88,4 +88,4 @@ class TestCheckPumpRelay:
         result = check_relay_state(relay_id="pump_1", relay_pin=11)
 
         assert result is False
-        mock_logger.critical.assert_called_once()
+        mock_logger.exception.assert_called_once()
