@@ -10,13 +10,6 @@
       "extensions": [".py", ".pyi"]
     }
   },
-  "mcp": {
-    "linear": {
-      "type": "local",
-      "command": ["npx", "-y", "mcp-remote", "https://mcp.linear.app/sse"],
-      "enabled": true
-    }
-  },
   "command": {
     "linear": {
       "template": "Retrieve a linear issue with the highest priority from the TODO column for the coruscant project and implement it. Follow the instructions in the AGENTS.md for Git and Linear workflows.",

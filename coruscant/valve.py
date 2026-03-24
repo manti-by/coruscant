@@ -7,6 +7,7 @@ from pi1wire import FailedToChangeResolutionException, InvalidCRCException, NotF
 
 from coruscant.exceptions import TempReadErrorException
 from coruscant.services.gpio import set_gpio_state, setup_gpio
+from coruscant.services.kafka import update_relay_state, update_sensor_data
 from coruscant.settings import (
     LOGGING,
     VALVE_ACT_TIMEOUT,
@@ -66,6 +67,7 @@ if __name__ == "__main__":
 
     try:
         temp = read_temperature(sensor_id=VALVE_SENSOR_ID)
+        update_sensor_data(sensor_id=VALVE_SENSOR_ID, temp=temp)
         logger.info(f"Temperature: {temp:.2f}°C")
     except TempReadErrorException as e:
         logger.error(f"Temperature sensor #{VALVE_SENSOR_ID} read error")
@@ -73,7 +75,11 @@ if __name__ == "__main__":
 
     valve_id_map = {v: k for k, v in VALVE_MAP.items()}
     if temp < TARGET_TEMP - VALVE_TEMP_HYSTERESIS:
+        update_relay_state(relay_id="VALVE-OPEN", state="ON")
         update_valve_state(valve_pin=valve_id_map["VALVE-OPEN"])
+        update_relay_state(relay_id="VALVE-CLOSED", state="OFF")
 
     elif temp > TARGET_TEMP + VALVE_TEMP_HYSTERESIS:
+        update_relay_state(relay_id="VALVE-CLOSED", state="ON")
         update_valve_state(valve_pin=valve_id_map["VALVE-CLOSED"])
+        update_relay_state(relay_id="VALVE-CLOSED", state="OFF")

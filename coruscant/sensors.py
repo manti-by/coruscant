@@ -4,6 +4,7 @@ from decimal import Decimal
 from pi1wire import FailedToChangeResolutionException, NotFoundSensorException, Pi1Wire, Resolution
 
 from coruscant.services.database import save_sensor_data
+from coruscant.services.kafka import update_sensor_data
 from coruscant.settings import LOGGING, TEMP_SENSORS
 
 
@@ -21,6 +22,7 @@ if __name__ == "__main__":
             temp = Decimal(round(wire_sensor.get_temperature(), 2))
 
             save_sensor_data(sensor_id=sensor_id, temp=temp)
+            update_sensor_data(sensor_id=sensor_id, temp=temp)
             logger.debug(f"Temp for {sensor_id}: {temp:.2f} *C")
 
         except NotFoundSensorException:

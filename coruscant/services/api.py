@@ -12,10 +12,7 @@ logger = logging.getLogger(__name__)
 
 def get_relay_state(relay_id: str) -> str | None:
     try:
-        response = requests.get(
-            f"{API_URL}/relays/{relay_id}/",
-            timeout=10,
-        )
+        response = requests.get(f"{API_URL}/relays/{relay_id}/", timeout=10)
 
         if response.ok:
             return response.json().get("target_state")

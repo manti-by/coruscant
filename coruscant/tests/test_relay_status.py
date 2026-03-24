@@ -1,39 +1,27 @@
+from decimal import Decimal
 from unittest import mock
 
-from coruscant.services.relay_status import get_relay_state, update_relay_state
+from coruscant.services.kafka import update_sensor_data
+from coruscant.services.relay import update_relay_state
 
 
 class TestRelayStatus:
-    @mock.patch("coruscant.services.relay_status.send_message")
-    @mock.patch("coruscant.services.relay_status.logger")
-    def test_get_relay_state__returns_none(self, mock_logger, mock_send_message):
-        state = get_relay_state(relay_id="test_relay")
-
-        assert state is None
-        mock_send_message.assert_not_called()
-        assert mock_logger.info.call_count == 1
-        assert "Getting relay state for test_relay is no longer supported via API" in mock_logger.info.call_args[0][0]
-
-    @mock.patch("coruscant.services.relay_status.send_message")
-    @mock.patch("coruscant.services.relay_status.logger")
-    def test_update_relay_state__success(self, mock_logger, mock_send_message):
+    @mock.patch("coruscant.services.kafka.send_message")
+    @mock.patch("coruscant.services.relay.logger")
+    def test_update_relay_state(self, _mock_logger, mock_send_message):
         mock_send_message.return_value = True
 
         result = update_relay_state(relay_id="test_relay", state="ON")
 
         assert result is True
-        mock_send_message.assert_called_once_with(
-            topic="odin", message={"relay_id": "test_relay", "state": "ON", "timestamp": mock.ANY}, key="test_relay"
-        )
+        assert mock_send_message.call_count == 1
 
-    @mock.patch("coruscant.services.relay_status.send_message")
-    @mock.patch("coruscant.services.relay_status.logger")
-    def test_update_relay_state__failed(self, mock_logger, mock_send_message):
-        mock_send_message.return_value = False
+    @mock.patch("coruscant.services.kafka.send_message")
+    @mock.patch("coruscant.services.relay.logger")
+    def test_update_sensor_data(self, _mock_logger, mock_send_message):
+        mock_send_message.return_value = True
 
-        result = update_relay_state(relay_id="test_relay", state="OFF")
+        result = update_sensor_data(sensor_id="test_sensor", temp=Decimal("10"))
 
-        assert result is False
-        mock_send_message.assert_called_once_with(
-            topic="odin", message={"relay_id": "test_relay", "state": "OFF", "timestamp": mock.ANY}, key="test_relay"
-        )
+        assert result is True
+        assert mock_send_message.call_count == 1

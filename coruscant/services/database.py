@@ -4,30 +4,11 @@ import sqlite3
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-import psycopg2
-from psycopg2.extras import DictCursor
-
-from coruscant.settings import DATABASE_PATH, DATABASE_URL
+from coruscant.settings import DATABASE_PATH
 
 
 if TYPE_CHECKING:
     from decimal import Decimal
-
-
-def get_sensor(sensor_id: str) -> dict:
-    with psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor) as connection:
-        cursor = connection.cursor()
-        sql = "SELECT * FROM sensors_sensor WHERE sensor_id = %s ORDER BY created_at DESC LIMIT 1"
-        cursor.execute(sql, (sensor_id,))
-        return cursor.fetchone()
-
-
-def get_relay(relay_id: str) -> dict:
-    with psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor) as connection:
-        cursor = connection.cursor()
-        sql = "SELECT * FROM relays_relay WHERE relay_id = %s ORDER BY created_at DESC LIMIT 1"
-        cursor.execute(sql, (relay_id,))
-        return cursor.fetchone()
 
 
 def get_sensor_data(sensor_id: str) -> dict:

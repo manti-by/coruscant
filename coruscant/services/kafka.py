@@ -1,11 +1,23 @@
 import json
 import logging.config
 from datetime import UTC, datetime
+from decimal import Decimal
+from enum import Enum
 
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 
-from coruscant.settings import KAFKA_SERVERS, LOGGING
+from coruscant.settings import KAFKA_SERVERS, KAFKA_TOPIC, LOGGING
+
+
+class PartitionKey(Enum):
+    SENSORS = "sensors"
+    RELAYS = "relays"
+
+
+class MessageType(Enum):
+    RELAY_STATE_UPDATE = "RELAY_STATE_UPDATE"
+    SENSOR_DATA_UPDATE = "SENSOR_DATA_UPDATE"
 
 
 logging.config.dictConfig(LOGGING)
@@ -41,8 +53,17 @@ def send_message(topic: str, message: dict, key: str | None = None) -> bool:
 
 def update_relay_state(relay_id: str, state: str) -> bool:
     message = {
-        "relay_id": relay_id,
-        "state": state,
+        "type": MessageType.RELAY_STATE_UPDATE.value,
+        "data": {"relay_id": relay_id, "state": state},
         "timestamp": datetime.now(UTC).isoformat(),
     }
-    return send_message(topic="odin", key=relay_id, message=message)
+    return send_message(topic=KAFKA_TOPIC, key=PartitionKey.RELAYS.value, message=message)
+
+
+def update_sensor_data(sensor_id: str, temp: Decimal, humidity: int | None = None) -> bool:
+    message = {
+        "type": MessageType.SENSOR_DATA_UPDATE.value,
+        "data": {"sensor_id": sensor_id, "temp": temp, "humidity": humidity},
+        "timestamp": datetime.now(UTC).isoformat(),
+    }
+    return send_message(topic=KAFKA_TOPIC, key=PartitionKey.SENSORS.value, message=message)

@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
+    """DEPRECATED - since 24-03-2026, TODO - remove after 24-06-2026"""
     while True:
         if not (result := get_data_for_sync()):
             exit(0)
