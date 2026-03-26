@@ -1,9 +1,9 @@
 import logging.config
-from decimal import Decimal
 
-from pi1wire import FailedToChangeResolutionException, NotFoundSensorException, Pi1Wire, Resolution
-
+from coruscant.exceptions import TempReadErrorException
 from coruscant.services.database import save_sensor_data
+from coruscant.services.kafka import update_sensor_data
+from coruscant.services.sensors import read_temperature
 from coruscant.settings import LOGGING, TEMP_SENSORS
 
 
@@ -12,25 +12,11 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
-    wire = Pi1Wire()
-
     for sensor_id in TEMP_SENSORS:
         try:
-            wire_sensor = wire.find(sensor_id)
-            wire_sensor.change_resolution(resolution=Resolution.X0_25)
-            temp = Decimal(round(wire_sensor.get_temperature(), 2))
-
+            temp = read_temperature(sensor_id=sensor_id)
             save_sensor_data(sensor_id=sensor_id, temp=temp)
+            update_sensor_data(sensor_id=sensor_id, temp=temp)
             logger.debug(f"Temp for {sensor_id}: {temp:.2f} *C")
-
-        except NotFoundSensorException:
-            logger.warning(f"Sensor {sensor_id} not found")
-
-        except FailedToChangeResolutionException:
-            logger.exception(f"Can't change resolution for sensor {sensor_id}")
-
-        except OSError:
-            logger.exception(f"Can't read sensor {sensor_id} data")
-
-        except Exception as e:
-            logger.exception(e)
+        except TempReadErrorException:
+            pass

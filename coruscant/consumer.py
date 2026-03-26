@@ -4,8 +4,8 @@ import logging.config
 import RPi.GPIO as GPIO
 from kafka import KafkaConsumer
 
-from coruscant.services.api import update_relay_state
 from coruscant.services.gpio import set_gpio_state, setup_gpio
+from coruscant.services.kafka import update_relay_state
 from coruscant.settings import KAFKA_SERVERS, LOGGING, PUMP_MAP, SERVO_MAP, VALVE_MAP
 
 

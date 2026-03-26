@@ -2,7 +2,7 @@ from unittest import mock
 
 from requests.exceptions import RequestException
 
-from coruscant.services.api import get_relay_state, update_relay_state
+from coruscant.services.api import get_relay_state
 from coruscant.settings import API_TOKEN, API_URL
 
 
@@ -50,26 +50,6 @@ class TestAPI:
         mock_requests.get.assert_called_once_with(
             f"{API_URL}/relays/relay_id/", headers={"Authorization": f"Token {API_TOKEN}"}, timeout=10
         )
-        assert mock_logger.exception.call_count == 1
-
-    @mock.patch("coruscant.services.api.requests")
-    @mock.patch("coruscant.services.api.logger")
-    def test_update_relay_state__success(self, mock_logger, mock_requests):
-        mock_requests.patch.return_value.ok = True
-        mock_requests.patch.return_value.status_code = 200
-
-        update_relay_state(relay_id="relay_id", state="state")
-        assert mock_requests.patch.call_count == 1
-        assert mock_logger.exception.call_count == 0
-
-    @mock.patch("coruscant.services.api.requests")
-    @mock.patch("coruscant.services.api.logger")
-    def test_update_relay_state__failed(self, mock_logger, mock_requests):
-        mock_requests.patch.return_value.ok = False
-        mock_requests.patch.return_value.status_code = 400
-
-        update_relay_state(relay_id="relay_id", state="state")
-        assert mock_requests.patch.call_count == 1
         assert mock_logger.exception.call_count == 1
 
     @mock.patch("coruscant.services.api.requests")

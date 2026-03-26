@@ -14,8 +14,8 @@ API_TOKEN = os.getenv("API_TOKEN", "insecure-api-token")
 SYNC_API_URL = os.getenv("SYNC_API_URL", f"{API_URL}/sensors/logs/")
 
 KAFKA_SERVERS = os.getenv("KAFKA_SERVERS", "192.168.1.100:9092").split()
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "odin")
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://odin:odin@192.168.1.100/odin")
 DATABASE_PATH = os.getenv("DATABASE_PATH", "/var/lib/coruscant/db.sqlite")
 
 """
@@ -44,8 +44,10 @@ SERVO_MAP = {
 
 SERVO_TEMP_HYSTERESIS = Decimal("0.5")
 
-VALVE_ACT_TIMEOUT = 60
+# TODO: Read from a database
+VALVE_TARGET_TEMP = Decimal("27.0")
 VALVE_TEMP_HYSTERESIS = Decimal("0.5")
+VALVE_ACT_TIMEOUT = 60
 
 logs_api = urlparse(os.getenv("LOGS_API_URL", "http://192.168.1.100/api/v1/core/logs/"))
 
