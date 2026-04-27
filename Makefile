@@ -14,6 +14,7 @@ pip:
 	uv sync --extra dev
 
 update:
+	uv run uv-bump
 	uv sync --upgrade --extra dev
 	uv run pre-commit autoupdate
 
