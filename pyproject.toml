@@ -1,6 +1,6 @@
 [project]
 name = "coruscant"
-version = "4.5.0"
+version = "4.6.0"
 requires-python = ">=3.13,<3.14"
 dependencies = [
     "Adafruit-DHT==1.4.0 ; platform_machine == 'armv7l'",
@@ -9,6 +9,7 @@ dependencies = [
     "pi1wire==0.3.0",
     "pre-commit>=4.6.0",
     "psycopg2-binary>=2.9.12,<3",
+    "redis>=5,<6",
     "requests>=2.33.1,<3",
     "RPi.GPIO==0.7.1",
 ]

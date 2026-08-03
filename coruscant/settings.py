@@ -16,6 +16,11 @@ SYNC_API_URL = os.getenv("SYNC_API_URL", f"{API_URL}/sensors/logs/")
 KAFKA_SERVERS = os.getenv("KAFKA_SERVERS", "192.168.1.100:9092").split()
 KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "odin")
 
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+REDIS_RELAYS_CHANNEL = os.getenv("REDIS_RELAYS_CHANNEL", "relays:control")
+REDIS_SENSORS_CHANNEL = os.getenv("REDIS_SENSORS_CHANNEL", "sensors:telemetry")
+REDIS_RELAY_STATE_KEY_PREFIX = os.getenv("REDIS_RELAY_STATE_KEY_PREFIX", "relays:state:")
+
 DATABASE_PATH = os.getenv("DATABASE_PATH", "/var/lib/coruscant/db.sqlite")
 
 """
