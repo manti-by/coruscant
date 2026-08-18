@@ -2,7 +2,7 @@ import logging.config
 
 from coruscant.exceptions import TempReadErrorException
 from coruscant.services.gpio import setup_gpio
-from coruscant.services.kafka import update_relay_state, update_sensor_data
+from coruscant.services.redis_bus import update_relay_state, update_sensor_data
 from coruscant.services.sensors import read_temperature
 from coruscant.services.valve import update_valve_state
 from coruscant.settings import (

@@ -2,11 +2,11 @@ import json
 import logging.config
 
 import RPi.GPIO as GPIO
-from kafka import KafkaConsumer
+from redis import Redis
 
 from coruscant.services.gpio import set_gpio_state, setup_gpio
-from coruscant.services.kafka import update_relay_state
-from coruscant.settings import KAFKA_SERVERS, LOGGING, PUMP_MAP, SERVO_MAP, VALVE_MAP
+from coruscant.services.redis_bus import update_relay_state
+from coruscant.settings import LOGGING, PUMP_MAP, REDIS_RELAYS_CHANNEL, REDIS_URL, SERVO_MAP, VALVE_MAP
 
 
 logging.config.dictConfig(LOGGING)
@@ -22,14 +22,18 @@ RELAY_MAP = {
 def consume():
     setup_gpio()
 
-    consumer = KafkaConsumer(
-        "coruscant", bootstrap_servers=KAFKA_SERVERS, group_id="coruscant", enable_auto_commit=True
-    )
-    for message in consumer:
+    redis_client = Redis.from_url(REDIS_URL)
+    pubsub = redis_client.pubsub()
+    pubsub.subscribe(REDIS_RELAYS_CHANNEL)
+
+    for message in pubsub.listen():
+        if message.get("type") != "message":
+            continue
+
         try:
-            data = json.loads(message.value)
-            relay_id = data["relay_id"]
-            target_state = data["target_state"] == "ON"
+            data = json.loads(message["data"])
+            relay_id = data["data"]["relay_id"]
+            target_state = data["data"]["target_state"] == "ON"
 
             if relay_id not in RELAY_MAP:
                 logger.exception(f"Unknown relay_id: {relay_id}")
@@ -39,8 +43,8 @@ def consume():
             state = GPIO.HIGH if target_state else GPIO.LOW
 
             if set_gpio_state(gpio_pin=pin_id, target_state=state):
-                update_relay_state(relay_id=relay_id, state=data["target_state"])
-                logger.info(f"Relay #{relay_id} state set to {data['target_state']}")
+                update_relay_state(relay_id=relay_id, state=data["data"]["target_state"])
+                logger.info(f"Relay #{relay_id} state set to {data['data']['target_state']}")
             else:
                 logger.debug(f"Relay #{relay_id} already in a target state")
 

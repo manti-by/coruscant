@@ -2,30 +2,33 @@ import sqlite3
 from unittest import mock
 
 import pytest
+from redis.exceptions import RedisError
 
 from ..settings import BASE_DIR, DATABASE_PATH
 
 
-class MockKafkaError(Exception):
+class MockRedisError(RedisError):
     pass
 
 
-@pytest.fixture(scope="session", autouse=True)
-def mock_kafka_producer():
-    import coruscant.services.kafka as kafka_module
+@pytest.fixture(scope="session")
+def mock_redis():
+    import coruscant.services.redis_bus as redis_module
 
-    mock_producer_instance = mock.MagicMock()
+    mock_redis_instance = mock.MagicMock()
+    mock_redis_class = mock.MagicMock()
+    mock_redis_class.from_url.return_value = mock_redis_instance
 
-    original_kafka_producer = kafka_module.KafkaProducer
-    original_kafka_error = kafka_module.KafkaError
+    original_redis = redis_module.Redis
+    original_redis_error = redis_module.RedisError
 
-    kafka_module.KafkaProducer = lambda *a, **k: mock_producer_instance
-    kafka_module.KafkaError = MockKafkaError
+    redis_module.Redis = mock_redis_class
+    redis_module.RedisError = MockRedisError
 
-    yield mock_producer_instance
+    yield mock_redis_instance
 
-    kafka_module.KafkaProducer = original_kafka_producer
-    kafka_module.KafkaError = original_kafka_error
+    redis_module.Redis = original_redis
+    redis_module.RedisError = original_redis_error
 
 
 @pytest.fixture(scope="session", autouse=True)

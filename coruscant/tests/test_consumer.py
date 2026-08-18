@@ -12,14 +12,22 @@ sys.modules["RPi.GPIO"] = mock_gpio
 from coruscant.consumer import RELAY_MAP, consume
 
 
-def create_mock_consumer(message):
-    mock_message = mock.MagicMock()
-    mock_message.value = message
+def create_mock_pubsub(message_bytes):
+    mock_pubsub = mock.MagicMock()
+    mock_pubsub.listen.return_value = iter([{"type": "message", "data": message_bytes}])
+    return mock_pubsub
 
-    iterator = iter([mock_message])
-    mock_consumer = mock.MagicMock()
-    mock_consumer.__iter__ = mock.MagicMock(return_value=iterator)
-    return mock_consumer
+
+def mock_redis_pubsub(message_bytes):
+    mock_pubsub = create_mock_pubsub(message_bytes)
+    return mock.patch(
+        "coruscant.consumer.Redis.from_url",
+        return_value=mock.MagicMock(pubsub=mock.MagicMock(return_value=mock_pubsub)),
+    )
+
+
+def envelope(relay_id, target_state):
+    return json.dumps({"type": "RELAY_STATE_UPDATE", "data": {"relay_id": relay_id, "target_state": target_state}})
 
 
 class TestConsumer:
@@ -27,9 +35,8 @@ class TestConsumer:
     @mock.patch("coruscant.consumer.logger")
     def test_consume__valid_message_valve_open(self, mock_logger, mock_set_gpio):
         mock_set_gpio.return_value = True
-        mock_consumer = create_mock_consumer(json.dumps({"relay_id": "VALVE-OPEN", "target_state": "ON"}).encode())
 
-        with mock.patch("coruscant.consumer.KafkaConsumer", return_value=mock_consumer):
+        with mock_redis_pubsub(envelope("VALVE-OPEN", "ON").encode()):
             consume()
 
         mock_set_gpio.assert_called_once()
@@ -41,9 +48,8 @@ class TestConsumer:
     @mock.patch("coruscant.consumer.logger")
     def test_consume__valid_message_pump_off(self, mock_logger, mock_set_gpio):
         mock_set_gpio.return_value = True
-        mock_consumer = create_mock_consumer(json.dumps({"relay_id": "PUMP-WF-2", "target_state": "OFF"}).encode())
 
-        with mock.patch("coruscant.consumer.KafkaConsumer", return_value=mock_consumer):
+        with mock_redis_pubsub(envelope("PUMP-WF-2", "OFF").encode()):
             consume()
 
         mock_set_gpio.assert_called_once()
@@ -55,9 +61,8 @@ class TestConsumer:
     @mock.patch("coruscant.consumer.logger")
     def test_consume__already_in_target_state(self, mock_logger, mock_set_gpio):
         mock_set_gpio.return_value = False
-        mock_consumer = create_mock_consumer(json.dumps({"relay_id": "VALVE-CLOSED", "target_state": "ON"}).encode())
 
-        with mock.patch("coruscant.consumer.KafkaConsumer", return_value=mock_consumer):
+        with mock_redis_pubsub(envelope("VALVE-CLOSED", "ON").encode()):
             consume()
 
         mock_set_gpio.assert_called_once()
@@ -67,9 +72,7 @@ class TestConsumer:
 
     @mock.patch("coruscant.consumer.logger")
     def test_consume__invalid_json(self, mock_logger):
-        mock_consumer = create_mock_consumer(b"not valid json")
-
-        with mock.patch("coruscant.consumer.KafkaConsumer", return_value=mock_consumer):
+        with mock_redis_pubsub(b"not valid json"):
             consume()
 
         mock_logger.exception.assert_called_once()
@@ -78,9 +81,9 @@ class TestConsumer:
 
     @mock.patch("coruscant.consumer.logger")
     def test_consume__missing_relay_id(self, mock_logger):
-        mock_consumer = create_mock_consumer(json.dumps({"target_state": "ON"}).encode())
+        message = json.dumps({"type": "RELAY_STATE_UPDATE", "data": {"target_state": "ON"}})
 
-        with mock.patch("coruscant.consumer.KafkaConsumer", return_value=mock_consumer):
+        with mock_redis_pubsub(message.encode()):
             consume()
 
         mock_logger.exception.assert_called_once()
@@ -89,9 +92,9 @@ class TestConsumer:
 
     @mock.patch("coruscant.consumer.logger")
     def test_consume__missing_target_state(self, mock_logger):
-        mock_consumer = create_mock_consumer(json.dumps({"relay_id": "VALVE-OPEN"}).encode())
+        message = json.dumps({"type": "RELAY_STATE_UPDATE", "data": {"relay_id": "VALVE-OPEN"}})
 
-        with mock.patch("coruscant.consumer.KafkaConsumer", return_value=mock_consumer):
+        with mock_redis_pubsub(message.encode()):
             consume()
 
         mock_logger.exception.assert_called_once()
@@ -100,9 +103,7 @@ class TestConsumer:
 
     @mock.patch("coruscant.consumer.logger")
     def test_consume__unknown_relay_id(self, mock_logger):
-        mock_consumer = create_mock_consumer(json.dumps({"relay_id": "unknown_relay", "target_state": "ON"}).encode())
-
-        with mock.patch("coruscant.consumer.KafkaConsumer", return_value=mock_consumer):
+        with mock_redis_pubsub(envelope("unknown_relay", "ON").encode()):
             consume()
 
         mock_logger.exception.assert_called_once_with("Unknown relay_id: unknown_relay")

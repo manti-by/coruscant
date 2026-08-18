@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 
 from coruscant.services.api import get_relay_state
 from coruscant.services.gpio import set_gpio_state
-from coruscant.services.kafka import update_relay_state
+from coruscant.services.redis_bus import update_relay_state
 from coruscant.settings import LOGGING
 
 
