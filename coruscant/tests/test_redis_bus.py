@@ -35,8 +35,6 @@ class TestRedisBus:
     @mock.patch("coruscant.services.redis_bus.get_redis")
     @mock.patch("coruscant.services.redis_bus.logger")
     def test_publish_message__redis_error(self, mock_logger, mock_get_redis):
-        from coruscant.services.redis_bus import RedisError
-
         mock_redis_client = mock.Mock()
         mock_redis_client.publish.side_effect = RedisError("Connection failed")
         mock_get_redis.return_value = mock_redis_client
@@ -52,7 +50,6 @@ class TestRedisBus:
     @mock.patch("coruscant.services.redis_bus.logger")
     def test_publish_message__redis_error_resets_client(self, mock_logger, mock_get_redis):
         import coruscant.services.redis_bus as redis_module
-        from coruscant.services.redis_bus import RedisError
 
         mock_redis_client = mock.Mock()
         mock_redis_client.publish.side_effect = RedisError("Connection failed")
@@ -265,8 +262,6 @@ class TestSetRelayState:
     @mock.patch("coruscant.services.redis_bus.get_redis")
     @mock.patch("coruscant.services.redis_bus.logger")
     def test_set_relay_state__redis_error(self, mock_logger, mock_get_redis):
-        from coruscant.services.redis_bus import RedisError
-
         mock_redis_client = mock.Mock()
         mock_redis_client.set.side_effect = RedisError("Connection failed")
         mock_get_redis.return_value = mock_redis_client
@@ -281,7 +276,6 @@ class TestSetRelayState:
     @mock.patch("coruscant.services.redis_bus.logger")
     def test_set_relay_state__redis_error_resets_client(self, mock_logger, mock_get_redis):
         import coruscant.services.redis_bus as redis_module
-        from coruscant.services.redis_bus import RedisError
 
         mock_redis_client = mock.Mock()
         mock_redis_client.set.side_effect = RedisError("Connection failed")

@@ -104,6 +104,12 @@ def set_relay_state(relay_id: str, payload: dict) -> bool:
 
 
 def update_relay_state(relay_id: str, state: str) -> bool:
+    """Persist and publish relay state.
+
+    Notifications are best-effort and not idempotent: repeated calls emit
+    duplicate RELAY_STATE_UPDATE messages. Consumers should tolerate
+    duplicates and use the persisted state as the source of truth.
+    """
     envelope = {
         "type": MessageType.RELAY_STATE_UPDATE.value,
         "data": {"relay_id": relay_id, "state": state},
