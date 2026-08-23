@@ -2,7 +2,7 @@ import logging.config
 
 from coruscant.exceptions import TempReadErrorException
 from coruscant.services.database import save_sensor_data
-from coruscant.services.kafka import update_sensor_data
+from coruscant.services.redis_bus import update_sensor_data
 from coruscant.services.sensors import read_temperature
 from coruscant.settings import LOGGING, TEMP_SENSORS
 
