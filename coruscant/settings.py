@@ -1,7 +1,7 @@
 import os
 from decimal import Decimal
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit
 
 from coruscant.services.logging import VerboseFormatter
 
@@ -13,8 +13,13 @@ API_TOKEN = os.getenv("API_TOKEN", "insecure-api-token")
 
 SYNC_API_URL = os.getenv("SYNC_API_URL", f"{API_URL}/sensors/logs/")
 
-KAFKA_SERVERS = os.getenv("KAFKA_SERVERS", "192.168.1.100:9092").split()
-KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "odin")
+_REDIS_URL_DEFAULT = "redis://localhost:6379/0"
+REDIS_URL = os.getenv("REDIS_URL", _REDIS_URL_DEFAULT)
+if not urlsplit(REDIS_URL).scheme:
+    raise ValueError(f"Invalid REDIS_URL configuration: {REDIS_URL!r}")
+REDIS_RELAYS_CHANNEL = os.getenv("REDIS_RELAYS_CHANNEL", "relays:control")
+REDIS_SENSORS_CHANNEL = os.getenv("REDIS_SENSORS_CHANNEL", "sensors:telemetry")
+REDIS_RELAY_STATE_KEY_PREFIX = os.getenv("REDIS_RELAY_STATE_KEY_PREFIX", "relays:state:")
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", "/var/lib/coruscant/db.sqlite")
 
@@ -85,6 +90,5 @@ LOGGING = {
     },
     "loggers": {
         "": {"handlers": ["console", "file", "http"], "level": "DEBUG", "propagate": True},
-        "kafka": {"handlers": ["console", "file"], "level": "WARNING", "propagate": True},
     },
 }
