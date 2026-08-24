@@ -128,6 +128,19 @@ class TestConsumer:
         call_args = mock_logger.exception.call_args[0][0]
         assert "Missing required field" in call_args
 
+    @mock.patch("coruscant.consumer.set_gpio_state")
+    @mock.patch("coruscant.consumer.logger")
+    def test_consume__rejects_flat_payload(self, mock_logger, mock_set_gpio):
+        message = json.dumps({"type": "RELAY_STATE_UPDATE", "relay_id": "VALVE-OPEN", "state": "ON"})
+
+        with mock_redis_pubsub(message.encode()), pytest.raises(KeyboardInterrupt):
+            consume()
+
+        mock_set_gpio.assert_not_called()
+        mock_logger.exception.assert_called_once()
+        call_args = mock_logger.exception.call_args[0][0]
+        assert "Missing required field" in call_args
+
     @mock.patch("coruscant.consumer.logger")
     def test_consume__unknown_relay_id(self, mock_logger):
         with mock_redis_pubsub(envelope("unknown_relay", "ON").encode()), pytest.raises(KeyboardInterrupt):
