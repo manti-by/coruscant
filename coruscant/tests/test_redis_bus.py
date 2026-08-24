@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from decimal import Decimal
 from unittest import mock
 
@@ -107,7 +108,25 @@ class TestRedisBus:
         assert channel == REDIS_RELAYS_CHANNEL
         assert envelope["type"] == MessageType.RELAY_STATE_UPDATE.value
         assert envelope["data"] == {"relay_id": "VALVE-OPEN", "state": "ON"}
+        assert envelope["timestamp"]
         mock_set_relay_state.assert_called_once_with("VALVE-OPEN", envelope)
+
+    @mock.patch("coruscant.services.redis_bus.set_relay_state")
+    @mock.patch("coruscant.services.redis_bus.publish_message")
+    def test_update_relay_state__envelope_contract(self, mock_publish_message, mock_set_relay_state):
+        mock_publish_message.return_value = True
+        mock_set_relay_state.return_value = True
+
+        result = update_relay_state(relay_id="VALVE-OPEN", state="ON")
+
+        assert result is True
+        _, envelope = mock_publish_message.call_args[0]
+        assert set(envelope) == {"type", "data", "timestamp"}
+        assert envelope["type"] == MessageType.RELAY_STATE_UPDATE.value
+        assert set(envelope["data"]) == {"relay_id", "state"}
+        assert envelope["data"]["relay_id"] == "VALVE-OPEN"
+        assert envelope["data"]["state"] == "ON"
+        datetime.fromisoformat(envelope["timestamp"])
 
     @mock.patch("coruscant.services.redis_bus.get_redis")
     @mock.patch("coruscant.services.redis_bus.logger")
@@ -169,6 +188,7 @@ class TestRedisBus:
             "unit": "C",
             "humidity": None,
         }
+        assert envelope["timestamp"]
 
     @mock.patch("coruscant.services.redis_bus.publish_message")
     def test_update_sensor_data__with_humidity(self, mock_publish_message):
