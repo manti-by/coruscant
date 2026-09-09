@@ -26,3 +26,6 @@ test:
 	export LOG_PATH=/tmp/odin.log && cd coruscant/ && uv run pytest
 
 ci: pip check test
+
+test_relays:
+	uv run python -m coruscant.relay_test
