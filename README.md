@@ -38,3 +38,9 @@ create [a virtual environment](https://docs.python.org/3/library/venv.html) for 
     ```shell
     uv run python -m coruscant.sensors
     ```
+
+    Test pump and servo relays one at a time:
+
+    ```shell
+    uv run python -m coruscant.relay_check
+    ```

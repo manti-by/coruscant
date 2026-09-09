@@ -1,7 +1,7 @@
 import os
 from decimal import Decimal
 from pathlib import Path
-from urllib.parse import urlparse, urlsplit
+from urllib.parse import urlparse
 
 from coruscant.services.logging import VerboseFormatter
 
@@ -13,10 +13,7 @@ API_TOKEN = os.getenv("API_TOKEN", "insecure-api-token")
 
 SYNC_API_URL = os.getenv("SYNC_API_URL", f"{API_URL}/sensors/logs/")
 
-_REDIS_URL_DEFAULT = "redis://localhost:6379/0"
-REDIS_URL = os.getenv("REDIS_URL", _REDIS_URL_DEFAULT)
-if not urlsplit(REDIS_URL).scheme:
-    raise ValueError(f"Invalid REDIS_URL configuration: {REDIS_URL!r}")
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 REDIS_RELAYS_CHANNEL = os.getenv("REDIS_RELAYS_CHANNEL", "relays:control")
 REDIS_SENSORS_CHANNEL = os.getenv("REDIS_SENSORS_CHANNEL", "sensors:telemetry")
 REDIS_RELAY_STATE_KEY_PREFIX = os.getenv("REDIS_RELAY_STATE_KEY_PREFIX", "relays:state:")
@@ -39,12 +36,18 @@ VALVE_MAP = {
 
 PUMP_MAP = {
     11: "PUMP-RD",
-    12: "PUMP-WF-2",
+    12: "PUMP-WF-1",
+    13: "PUMP-WF-2",
+    15: "PUMP-NC",
 }
 
 SERVO_MAP = {
-    35: "SERVO-WR",
-    36: "SERVO-GR",
+    29: "SERVO-WR",
+    31: "SERVO-GR",
+    33: "SERVO-SR",
+    35: "SERVO-HL",
+    37: "SERVO-BR",
+    38: "SERVO-NC",
 }
 
 SERVO_TEMP_HYSTERESIS = Decimal("0.5")
