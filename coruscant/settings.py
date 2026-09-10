@@ -30,24 +30,24 @@ TEMP_SENSORS = {"28000007176e41", "28000007162e15", "28000007173569", "280000071
 VALVE_SENSOR_ID = "28000007173569"
 
 VALVE_MAP = {
-    15: "VALVE-OPEN",
-    16: "VALVE-CLOSED",
+    16: "VALVE-OPEN",
+    18: "VALVE-CLOSED",
 }
 
 PUMP_MAP = {
-    11: "PUMP-RD",
+    11: "PUMP-WF-2",
     12: "PUMP-WF-1",
-    13: "PUMP-WF-2",
-    15: "PUMP-NC",
+    13: "PUMP-NC",
+    15: "PUMP-RD",
 }
 
 SERVO_MAP = {
-    29: "SERVO-WR",
+    29: "SERVO-SR",
     31: "SERVO-GR",
-    33: "SERVO-SR",
+    33: "SERVO-NC",
     35: "SERVO-HL",
     37: "SERVO-BR",
-    38: "SERVO-NC",
+    38: "SERVO-WR",
 }
 
 SERVO_TEMP_HYSTERESIS = Decimal("0.5")
