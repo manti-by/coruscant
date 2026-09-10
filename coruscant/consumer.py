@@ -43,7 +43,7 @@ def process_message(message):
             return
 
         pin_id = RELAY_MAP[relay_id]
-        target_state = GPIO.HIGH if state == "ON" else GPIO.LOW
+        target_state = GPIO.LOW if state == "ON" else GPIO.HIGH
 
         if set_gpio_state(gpio_pin=pin_id, target_state=target_state):
             update_relay_state(relay_id=relay_id, state=state)

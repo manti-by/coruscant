@@ -18,4 +18,4 @@ if __name__ == "__main__":
     for servo_pin, relay_id in SERVO_MAP.items():
         # If a result is False fallback to ON state
         if not check_relay_state(relay_id=relay_id, relay_pin=servo_pin):
-            set_gpio_state(gpio_pin=servo_pin, target_state=GPIO.HIGH)
+            set_gpio_state(gpio_pin=servo_pin, target_state=GPIO.LOW)

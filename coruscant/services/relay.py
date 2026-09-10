@@ -17,7 +17,7 @@ def check_relay_state(relay_id: str, relay_pin: int) -> bool:
         if not (state := get_relay_state(relay_id=relay_id)):
             return False
 
-        target_state = GPIO.HIGH if state == "ON" else GPIO.LOW  # noqa
+        target_state = GPIO.LOW if state == "ON" else GPIO.HIGH
         if set_gpio_state(gpio_pin=relay_pin, target_state=target_state):
             update_relay_state(relay_id=relay_id, state=state)
             logger.info(f"Relay #{relay_id} state set to {state}")
