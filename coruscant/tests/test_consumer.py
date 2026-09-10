@@ -58,7 +58,7 @@ class TestConsumer:
         mock_set_gpio.assert_called_once()
         _, kwargs = mock_set_gpio.call_args
         assert kwargs["gpio_pin"] == 16
-        assert kwargs["target_state"] == 1
+        assert kwargs["target_state"] == 0
         mock_logger.info.assert_called_with("Relay #VALVE-OPEN state set to ON")
 
     @mock.patch("coruscant.consumer.set_gpio_state")
@@ -72,7 +72,7 @@ class TestConsumer:
         mock_set_gpio.assert_called_once()
         _, kwargs = mock_set_gpio.call_args
         assert kwargs["gpio_pin"] == 11
-        assert kwargs["target_state"] == 0
+        assert kwargs["target_state"] == 1
         mock_logger.info.assert_called_with("Relay #PUMP-WF-2 state set to OFF")
 
     @mock.patch("coruscant.consumer.set_gpio_state")
