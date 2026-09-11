@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 def check_relay_state(relay_id: str, relay_pin: int) -> bool:
     try:
         if not (state := get_relay_state(relay_id=relay_id)):
+            logger.info(f"Get relay #{relay_id} state failed")
             return False
 
         target_state = GPIO.LOW if state == "ON" else GPIO.HIGH

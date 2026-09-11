@@ -20,7 +20,7 @@ def get_relay_state(relay_id: str) -> str | None:
 
         if response.ok:
             target_state = response.json().get("target_state")
-            logger.debug(f"get_relay_state: relay_id={relay_id}, target_state={target_state}")
+            logger.info(f"get_relay_state: relay_id={relay_id}, target_state={target_state}")
             return target_state
         logger.exception(response.text)
 
