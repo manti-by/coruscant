@@ -22,8 +22,8 @@ def get_relay_state(relay_id: str) -> str | None:
             target_state = response.json().get("target_state")
             logger.info(f"get_relay_state: relay_id={relay_id}, target_state={target_state}")
             return target_state
-        logger.exception(response.text)
+        logger.exception(f"{relay_id}: {response.text}")
 
     except RequestException as e:
-        logger.exception(e)
+        logger.exception(f"{relay_id}: {e}")
     return None
