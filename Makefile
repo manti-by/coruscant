@@ -1,3 +1,22 @@
+IMAGE := coruscant:latest
+
+DOCKER_RUN := docker run --rm \
+	-v $(CURDIR):/app \
+	-v coruscant-venv:/app/.venv \
+	-v coruscant-uv-cache:/root/.cache/uv \
+	-v coruscant-pre-commit:/root/.cache/pre-commit \
+	-w /app \
+	-e LOG_PATH=/tmp/coruscant.log \
+	$(IMAGE)
+
+docker-build:
+	docker build -t $(IMAGE) .
+
+docker-clean:
+	docker rmi $(IMAGE) || true
+	docker volume rm coruscant-venv coruscant-uv-cache coruscant-pre-commit || true
+
+
 setup:
 	sudo mkdir -p /var/log/coruscant/
 	sudo chown manti:manti /var/log/coruscant/
@@ -7,19 +26,22 @@ deploy:
 	uv sync
 	sudo service consumer restart
 
-install:
-	uv sync --extra dev
+
+install: docker-build
+	$(DOCKER_RUN) uv sync --extra dev
 
 update:
-	uv run uv-bump
-	uv sync --upgrade --extra dev
-	uv run pre-commit autoupdate
+	$(DOCKER_RUN) uv run uv-bump
+	$(DOCKER_RUN) uv sync --upgrade --extra dev
+	$(DOCKER_RUN) uv run pre-commit autoupdate
 
 check:
-	git add .
-	uv run pre-commit run --all-files
+	$(DOCKER_RUN) uv run pre-commit run --all-files
 
 test:
-	export LOG_PATH=/tmp/odin.log && cd coruscant/ && uv run pytest
+	$(DOCKER_RUN) uv run pytest coruscant/
 
-ci: install check test
+ci:
+	$(DOCKER_RUN) sh -c "uv sync --extra dev \
+		&& uv run pre-commit run --all-files \
+		&& uv run pytest coruscant/"

@@ -26,4 +26,3 @@ def mock_redis():
 
     redis_module.Redis = original_redis
     redis_module.RedisError = original_redis_error
-
