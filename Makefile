@@ -1,4 +1,5 @@
 IMAGE := coruscant:latest
+PI_IMAGE := coruscant:pi
 
 DOCKER_RUN := docker run --rm \
 	-v $(CURDIR):/app \
@@ -10,10 +11,13 @@ DOCKER_RUN := docker run --rm \
 	$(IMAGE)
 
 docker-build:
-	docker build -t $(IMAGE) .
+	docker build --tag $(IMAGE) .
+
+docker-build-pi:
+	docker build --platform linux/arm/v7 --tag $(PI_IMAGE) .
 
 docker-clean:
-	docker rmi $(IMAGE) || true
+	docker rmi $(IMAGE) $(PI_IMAGE) || true
 	docker volume rm coruscant-venv coruscant-uv-cache coruscant-pre-commit || true
 
 
@@ -27,7 +31,7 @@ deploy:
 	sudo service consumer restart
 
 
-install: docker-build
+install:
 	$(DOCKER_RUN) uv sync --extra dev
 
 update:
