@@ -1,5 +1,5 @@
 [Unit]
-Description=Kafka consumer
+Description=Redis consumer
 After=network.target
 
 [Service]

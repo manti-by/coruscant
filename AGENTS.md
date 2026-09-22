@@ -3,21 +3,18 @@
 ## Project Overview
 
 Coruscant is a Raspberry Pi–based IoT satellite for the ODIN server.
-It reads DS18B20 temperature sensors, controls pumps, valves, relays and servos, stores data locally in 
-SQLite/PostgreSQL, and synchronizes relay states with ODIN via Kafka messages.
+It reads DS18B20 temperature sensors, controls pumps, valves, relays and servos, 
+and synchronizes relay states with ODIN via Redis pub/sub messages.
 
 ## Project Structure
 
 - `coruscant/settings.py`: Core configuration, paths, logging setup and external API URLs
 - `coruscant/sensors.py`: Reading DS18B20 temperature sensors
 - `coruscant/pumps.py`, `coruscant/servos.py`, `coruscant/valve.py`: Hardware control logic
-- `coruscant/services/kafka.py`: Kafka producer for sending relay status messages
-- `coruscant/services/relay_status.py`: Relay status management using Kafka
-- `coruscant/services/database.py`: Local database utilities
+- `coruscant/services/redis_bus.py`: Relay status management using Redis
 - `coruscant/services/gpio.py`: GPIO helpers for Raspberry Pi
-- `coruscant/sync.py`: Synchronization of sensor data with ODIN
 - `coruscant/tests/`: Pytest tests for services and core logic
-- `utils/`: Crontab configuration and database schema (`crontab.conf`, `database.sql`)
+- `utils/`: Crontab and consumer service configuration
 
 ## Git Workflow
 
@@ -32,9 +29,11 @@ This project adheres strictly to the Git Flow branching model. AI agents must fo
 
 ### Feature Branches:
 
-- Create feature branches using the naming convention `<agent-name>/feature/<issue-id>-<descriptive-name>` (e.g., `opencode/feature/ODIN-10-add-user-authentication`).
+- Create feature branches using the naming convention `feature/<issue-id>-<descriptive-name>` 
+(e.g., `feature/ODIN-10-add-user-authentication`).
 - Use the [Conventional Commits](https://www.conventionalcommits.org) specification for commit messages (e.g., `feat:`, `fix:`, `docs:`).
 - Ensure all local tests pass before committing.
+- Ensure all linting errors are fixed before committing.
 - Use `git push --force-with-lease` if needed on your feature branch, but never on `master`.
 
 ### Pull Requests (PRs):
@@ -42,14 +41,6 @@ This project adheres strictly to the Git Flow branching model. AI agents must fo
 - Open a Pull Request for every completed feature branch.
 - PRs must be reviewed and pass all CI checks before merging.
 - The PR title should follow the Conventional Commits specification.
-
-## Linear Workflow
-
-- When starting implementation of any issue from `TODO`, move it to `In Progress` column.
-- When feature is completed and PR is created, move it to `In Review` column.
-- After approval, merge the feature branch into `master` and move the issue to `Done` column.
-- If the feature branch is not merged into `master`, move it back to `In Progress` column.
-- If the feature branch is closed without merging, move it to `Closed` column.
 
 ## Development Commands
 
@@ -68,12 +59,12 @@ uv run pre-commit autoupdate
 
 ```bash
 make setup   # Create /var/log/coruscant and /var/lib/coruscant, initialize SQLite DB
-make pip     # Install dev dependencies via uv
+make install # Install dev dependencies via uv
 make update  # Upgrade dev dependencies and pre-commit hooks
-make check   # Run pre-commit on all files
+make check   # Run pre-commit on all files (linter checks)
 make test    # Run pytest (LOG_PATH=/tmp/odin.log, inside coruscant/)
-make ci      # Shorthand: pip check test
-make deploy  # Deploy sources to remote host via scp
+make ci      # Shorthand: install check test
+make deploy  # Deploy latest changes
 ```
 
 ### Running Modules
@@ -85,7 +76,6 @@ uv run python -m coruscant.sensors
 uv run python -m coruscant.pumps
 uv run python -m coruscant.servos
 uv run python -m coruscant.valve
-uv run python -m coruscant.sync
 ```
 
 NOTE: Do not use `run.sh` in any environments as it only works on Raspberry Pi.
@@ -106,8 +96,8 @@ uv run pytest
 
 - Python 3.13 (see `pyproject.toml`)
 - Follow PEP 8 style guidelines, with Ruff enforcing style and linting (120 char line length)
-- Use type hints for public functions and complex code paths
-- Prefer f-strings over `.format()` or `%`
+- Use type hints for functions and complex code paths
+- Always use f-strings over `.format()` or `%`
 - Use list/dict/set comprehensions instead of `map`/`filter` where it improves readability
 - Prefer `pathlib.Path` over `os.path` for filesystem paths
 - Follow PEP 257 for docstrings where docstrings are used
@@ -133,13 +123,11 @@ uv run bandit -c pyproject.toml .
 
 - Use `pytest` for tests (`coruscant/tests/`)
 - Focus tests on:
-  - External integrations (`services.kafka`, `services.database`, `services.gpio`)
+  - External integrations (e.g. `services.gpio`)
   - Hardware control logic (`pumps`, `servos`, `valve`)
-  - Synchronization flows (`sync`)
 - Use mocks for:
-  - Kafka producer calls (e.g. `kafka.KafkaProducer` in `services.kafka`)
   - GPIO access
-  - Real databases for unit-level tests
+  - Real redis for unit-level tests
 - Write descriptive test names with `__` separating scenario parts (e.g. `test_update_relay_state__failed`)
 - Test both success, failure and exception paths
 
@@ -159,9 +147,7 @@ uv run bandit -c pyproject.toml .
 
 Environment is controlled primarily via `coruscant/settings.py`:
 
-- `API_URL`, `SYNC_API_URL`: ODIN API endpoints (legacy)
-- `KAFKA_SERVERS`: Kafka bootstrap servers for relay status messages
-- `DATABASE_URL`, `DATABASE_PATH`: Remote PostgreSQL and local SQLite paths
+- `REDIS_URL`: Redis URL for relay status messages
 - `LOG_PATH`, `LOGS_API_URL`: Local log file and remote log collector URL
 - Hardware-related constants for sensor IDs, relay pins, and servo mapping
 
@@ -169,7 +155,7 @@ Operational notes:
 
 - Expect to run on Raspberry Pi 2 Model B (or similar)
 - DS18B20 sensors must be wired and configured according to `TEMP_SENSORS` and `VALVE_SENSOR_ID`
-- Ensure `/var/log/coruscant/` and `/var/lib/coruscant/` exist and are writable by the `coruscant` user (see `make setup`)
+- Ensure `/var/log/coruscant/` exist and are writable by the `coruscant` user (see `make setup`)
 
 ## Security Guidelines
 

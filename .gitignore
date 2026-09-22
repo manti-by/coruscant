@@ -1,9 +1,11 @@
 #.gitignore
 
-.venv/
+.delta/
 .idea/
+.ropeproject/
 .vscode/
-.env
+.zed/
+.venv/
 
 __pycache__/
 .pytest_cache/
@@ -14,4 +16,5 @@ __pycache__/
 docs/_build/
 
 .python-version
+.env
 db.sqlite

@@ -22,22 +22,16 @@ repos:
         args: [--fix]
       - id: ruff-format
 
-  - repo: local
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: '0.26'
     hooks:
-    - id: bandit
-      name: bandit
-      entry: bandit
-      language: python
-      language_version: python3.13
-      types: [ python ]
-      args: [-c, pyproject.toml]
-      additional_dependencies: ["bandit[toml]"]
+      - id: validate-pyproject
 
-  - repo: https://github.com/thibaudcolas/curlylint
-    rev: v0.13.1
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.4
     hooks:
-      - id: curlylint
-        types: [ file ]
-        files: \.(html|sls)$
+      - id: bandit
+        language: python
         language_version: python3.13
-        additional_dependencies: [click<8.1]
+        types: [python]
+        args: [-c, pyproject.toml]

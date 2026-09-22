@@ -1,16 +1,13 @@
 setup:
 	sudo mkdir -p /var/log/coruscant/
-	sudo mkdir -p /var/lib/coruscant/
 	sudo chown manti:manti /var/log/coruscant/
-	sudo chown manti:manti /var/lib/coruscant/
-	sqlite3 /var/lib/coruscant/db.sqlite < utils/database.sql
 
 deploy:
 	git pull
 	uv sync
 	sudo service consumer restart
 
-pip:
+install:
 	uv sync --extra dev
 
 update:
@@ -25,7 +22,4 @@ check:
 test:
 	export LOG_PATH=/tmp/odin.log && cd coruscant/ && uv run pytest
 
-ci: pip check test
-
-test_relays:
-	uv run python -m coruscant.relay_test
+ci: install check test

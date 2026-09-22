@@ -3,22 +3,16 @@ from decimal import Decimal
 from pathlib import Path
 from urllib.parse import urlparse
 
-from coruscant.services.logging import VerboseFormatter
-
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 API_URL = os.getenv("API_URL", "http://192.168.1.100/api/v1")
 API_TOKEN = os.getenv("API_TOKEN", "insecure-api-token")
 
-SYNC_API_URL = os.getenv("SYNC_API_URL", f"{API_URL}/sensors/logs/")
-
 REDIS_URL = os.getenv("REDIS_URL", "redis://192.168.1.100:6379/0")
 REDIS_RELAYS_CHANNEL = os.getenv("REDIS_RELAYS_CHANNEL", "relays:control")
 REDIS_SENSORS_CHANNEL = os.getenv("REDIS_SENSORS_CHANNEL", "sensors:telemetry")
 REDIS_RELAY_STATE_KEY_PREFIX = os.getenv("REDIS_RELAY_STATE_KEY_PREFIX", "relays:state:")
-
-DATABASE_PATH = os.getenv("DATABASE_PATH", "/var/lib/coruscant/db.sqlite")
 
 """
 28000007176e41 - rad
@@ -67,7 +61,6 @@ LOGGING = {
         "standard": {
             "format": "%(asctime)s %(levelname)-6s: %(filename)-8s - %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
-            "()": VerboseFormatter,
         }
     },
     "handlers": {

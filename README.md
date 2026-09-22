@@ -6,7 +6,8 @@
 
 ## About
 
-Raspberry Pi monitoring app, a satellite for [ODIN server](https://github.com/manti-by/odin/)
+Raspberry Pi app to work with 1-wire sensors and relays,
+a satellite for [ODIN server](https://github.com/manti-by/odin/)
 
 Author: Alexander Chaika <manti.by@gmail.com>
 
@@ -37,10 +38,4 @@ create [a virtual environment](https://docs.python.org/3/library/venv.html) for 
 
     ```shell
     uv run python -m coruscant.sensors
-    ```
-
-    Test pump and servo relays one at a time:
-
-    ```shell
-    uv run python -m coruscant.relay_check
     ```
