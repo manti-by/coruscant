@@ -2,9 +2,9 @@ import logging.config
 
 import RPi.GPIO as GPIO
 
-from coruscant.services.api import get_relay_state
+from coruscant.services.api import get_relay
 from coruscant.services.gpio import set_gpio_state
-from coruscant.services.redis_bus import update_relay_state
+from coruscant.services.redis_bus import update_relay
 from coruscant.settings import LOGGING
 
 
@@ -14,14 +14,15 @@ logger = logging.getLogger(__name__)
 
 def check_relay_state(relay_id: str, relay_pin: int) -> bool:
     try:
-        if not (state := get_relay_state(relay_id=relay_id)):
+        relay = get_relay(relay_id=relay_id)
+        if not relay or not relay.state:
             logger.info(f"Get relay #{relay_id} state failed")
             return False
 
-        target_state = GPIO.LOW if state == "ON" else GPIO.HIGH
+        target_state = GPIO.LOW if relay.state == "ON" else GPIO.HIGH
         if set_gpio_state(gpio_pin=relay_pin, target_state=target_state):
-            update_relay_state(relay_id=relay_id, state=state)
-            logger.info(f"Relay #{relay_id} state set to {state}")
+            update_relay(relay=relay)
+            logger.info(f"Relay #{relay_id} state set to {relay.state}, mode {relay.mode}")
         return True
 
     except RuntimeError as e:

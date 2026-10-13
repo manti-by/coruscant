@@ -16,6 +16,7 @@ sys.modules["RPi"] = mock_rpi
 sys.modules["RPi.GPIO"] = mock_gpio
 
 from coruscant.consumer import RELAY_MAP, consume
+from coruscant.models import Relay
 
 
 def create_mock_pubsub(message_bytes):
@@ -42,8 +43,11 @@ def mock_redis_pubsub(message_bytes, sleep_side_effect=KeyboardInterrupt):
         yield
 
 
-def envelope(relay_id, state):
-    return json.dumps({"type": "RELAY_STATE_UPDATE", "data": {"relay_id": relay_id, "state": state}})
+def envelope(relay_id, state, mode=None):
+    data = {"relay_id": relay_id, "state": state}
+    if mode is not None:
+        data["mode"] = mode
+    return json.dumps({"type": "RELAY_STATE_UPDATE", "data": data})
 
 
 class TestConsumer:
@@ -59,7 +63,7 @@ class TestConsumer:
         _, kwargs = mock_set_gpio.call_args
         assert kwargs["gpio_pin"] == 16
         assert kwargs["target_state"] == 0
-        mock_logger.info.assert_called_with("Relay #VALVE-OPEN state set to ON")
+        mock_logger.info.assert_called_with("Relay #VALVE-OPEN state set to ON, mode None")
 
     @mock.patch("coruscant.consumer.set_gpio_state")
     @mock.patch("coruscant.consumer.logger")
@@ -73,7 +77,19 @@ class TestConsumer:
         _, kwargs = mock_set_gpio.call_args
         assert kwargs["gpio_pin"] == 11
         assert kwargs["target_state"] == 1
-        mock_logger.info.assert_called_with("Relay #PUMP-WF-2 state set to OFF")
+        mock_logger.info.assert_called_with("Relay #PUMP-WF-2 state set to OFF, mode None")
+
+    @mock.patch("coruscant.consumer.update_relay")
+    @mock.patch("coruscant.consumer.set_gpio_state")
+    @mock.patch("coruscant.consumer.logger")
+    def test_consume__echoes_mode_back(self, mock_logger, mock_set_gpio, mock_update_relay):
+        """The mode ODIN sent on the control command is published back with the state."""
+        mock_set_gpio.return_value = True
+
+        with mock_redis_pubsub(envelope("SERVO-SR", "ON", "BASIC").encode()), pytest.raises(KeyboardInterrupt):
+            consume()
+
+        mock_update_relay.assert_called_once_with(relay=Relay(relay_id="SERVO-SR", state="ON", mode="BASIC"))
 
     @mock.patch("coruscant.consumer.set_gpio_state")
     @mock.patch("coruscant.consumer.logger")

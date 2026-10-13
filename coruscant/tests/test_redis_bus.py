@@ -6,12 +6,13 @@ from unittest import mock
 import pytest
 from redis.exceptions import RedisError
 
+from coruscant.models import Relay
 from coruscant.services.redis_bus import (
     RELAY_STATE_TTL,
     MessageType,
     publish_message,
     set_relay_state,
-    update_relay_state,
+    update_relay,
     update_sensor_data,
 )
 from coruscant.settings import REDIS_RELAY_STATE_KEY_PREFIX, REDIS_RELAYS_CHANNEL, REDIS_SENSORS_CHANNEL
@@ -99,7 +100,7 @@ class TestRedisBus:
         mock_publish_message.side_effect = lambda *a, **k: calls.append("publish") or True
         mock_set_relay_state.side_effect = lambda *a, **k: calls.append("set") or True
 
-        result = update_relay_state(relay_id="VALVE-OPEN", state="ON")
+        result = update_relay(relay=Relay(relay_id="VALVE-OPEN", state="ON"))
 
         assert result is True
         assert calls == ["set", "publish"]
@@ -107,9 +108,21 @@ class TestRedisBus:
         channel, envelope = mock_publish_message.call_args[0]
         assert channel == REDIS_RELAYS_CHANNEL
         assert envelope["type"] == MessageType.RELAY_STATE_UPDATE.value
-        assert envelope["data"] == {"relay_id": "VALVE-OPEN", "state": "ON"}
+        assert envelope["data"] == {"relay_id": "VALVE-OPEN", "state": "ON", "mode": None}
         assert envelope["timestamp"]
         mock_set_relay_state.assert_called_once_with("VALVE-OPEN", envelope)
+
+    @mock.patch("coruscant.services.redis_bus.set_relay_state")
+    @mock.patch("coruscant.services.redis_bus.publish_message")
+    def test_update_relay_state__publishes_mode(self, mock_publish_message, mock_set_relay_state):
+        mock_publish_message.return_value = True
+        mock_set_relay_state.return_value = True
+
+        result = update_relay(relay=Relay(relay_id="SERVO-SR", state="ON", mode="BASIC"))
+
+        assert result is True
+        _, envelope = mock_publish_message.call_args[0]
+        assert envelope["data"] == {"relay_id": "SERVO-SR", "state": "ON", "mode": "BASIC"}
 
     @mock.patch("coruscant.services.redis_bus.set_relay_state")
     @mock.patch("coruscant.services.redis_bus.publish_message")
@@ -117,15 +130,16 @@ class TestRedisBus:
         mock_publish_message.return_value = True
         mock_set_relay_state.return_value = True
 
-        result = update_relay_state(relay_id="VALVE-OPEN", state="ON")
+        result = update_relay(relay=Relay(relay_id="VALVE-OPEN", state="ON"))
 
         assert result is True
         _, envelope = mock_publish_message.call_args[0]
         assert set(envelope) == {"type", "data", "timestamp"}
         assert envelope["type"] == MessageType.RELAY_STATE_UPDATE.value
-        assert set(envelope["data"]) == {"relay_id", "state"}
+        assert set(envelope["data"]) == {"relay_id", "state", "mode"}
         assert envelope["data"]["relay_id"] == "VALVE-OPEN"
         assert envelope["data"]["state"] == "ON"
+        assert envelope["data"]["mode"] is None
         datetime.fromisoformat(envelope["timestamp"])
 
     @mock.patch("coruscant.services.redis_bus.get_redis")
@@ -136,7 +150,7 @@ class TestRedisBus:
         mock_redis_client.set.return_value = True
         mock_get_redis.return_value = mock_redis_client
 
-        result = update_relay_state(relay_id="VALVE-OPEN", state="ON")
+        result = update_relay(relay=Relay(relay_id="VALVE-OPEN", state="ON"))
 
         assert result is True
         mock_redis_client.set.assert_called_once()
@@ -146,7 +160,7 @@ class TestRedisBus:
             mock_redis_client.set.call_args[1],
         )
         assert key == f"{REDIS_RELAY_STATE_KEY_PREFIX}VALVE-OPEN"
-        assert json.loads(value)["data"] == {"relay_id": "VALVE-OPEN", "state": "ON"}
+        assert json.loads(value)["data"] == {"relay_id": "VALVE-OPEN", "state": "ON", "mode": None}
         assert kwargs == {"ex": RELAY_STATE_TTL}
 
     @mock.patch("coruscant.services.redis_bus.set_relay_state")
@@ -155,7 +169,7 @@ class TestRedisBus:
         mock_publish_message.return_value = False
         mock_set_relay_state.return_value = True
 
-        result = update_relay_state(relay_id="VALVE-OPEN", state="ON")
+        result = update_relay(relay=Relay(relay_id="VALVE-OPEN", state="ON"))
 
         assert result is False
 
@@ -164,7 +178,7 @@ class TestRedisBus:
     def test_update_relay_state__does_not_publish_when_set_fails(self, mock_publish_message, mock_set_relay_state):
         mock_set_relay_state.return_value = False
 
-        result = update_relay_state(relay_id="VALVE-OPEN", state="ON")
+        result = update_relay(relay=Relay(relay_id="VALVE-OPEN", state="ON"))
 
         assert result is False
         mock_set_relay_state.assert_called_once()

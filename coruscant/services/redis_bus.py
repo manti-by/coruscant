@@ -8,6 +8,7 @@ from urllib.parse import urlsplit
 from redis import Redis
 from redis.exceptions import RedisError
 
+from coruscant.models import Relay
 from coruscant.settings import (
     REDIS_RELAY_STATE_KEY_PREFIX,
     REDIS_RELAYS_CHANNEL,
@@ -103,7 +104,7 @@ def set_relay_state(relay_id: str, payload: dict) -> bool:
         return _handle_redis_error(e)
 
 
-def update_relay_state(relay_id: str, state: str) -> bool:
+def update_relay(relay: Relay) -> bool:
     """Persist and publish relay state.
 
     Notifications are best-effort and not idempotent: repeated calls emit
@@ -112,11 +113,11 @@ def update_relay_state(relay_id: str, state: str) -> bool:
     """
     envelope = {
         "type": MessageType.RELAY_STATE_UPDATE.value,
-        "data": {"relay_id": relay_id, "state": state},
+        "data": {"relay_id": relay.relay_id, "state": relay.state, "mode": relay.mode},
         "timestamp": datetime.now(UTC).isoformat(),
     }
     # Persist first so consumers never observe an event for unpersisted state.
-    if not set_relay_state(relay_id, envelope):
+    if not set_relay_state(relay.relay_id, envelope):
         return False
     return publish_message(REDIS_RELAYS_CHANNEL, envelope)
 

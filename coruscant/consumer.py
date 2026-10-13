@@ -6,8 +6,9 @@ import RPi.GPIO as GPIO
 from redis import Redis
 from redis.exceptions import RedisError
 
+from coruscant.models import Relay
 from coruscant.services.gpio import set_gpio_state, setup_gpio
-from coruscant.services.redis_bus import update_relay_state
+from coruscant.services.redis_bus import update_relay
 from coruscant.settings import LOGGING, PUMP_MAP, REDIS_RELAYS_CHANNEL, REDIS_URL, SERVO_MAP, VALVE_MAP
 
 
@@ -46,8 +47,10 @@ def process_message(message):
         target_state = GPIO.LOW if state == "ON" else GPIO.HIGH
 
         if set_gpio_state(gpio_pin=pin_id, target_state=target_state):
-            update_relay_state(relay_id=relay_id, state=state)
-            logger.info(f"Relay #{relay_id} state set to {state}")
+            relay = Relay(relay_id=relay_id, state=state, mode=data["data"].get("mode"))
+            update_relay(relay=relay)
+            logger.info(f"Relay #{relay_id} state set to {state}, mode {relay.mode}")
+
         else:
             logger.debug(f"Relay #{relay_id} already in a target state")
 

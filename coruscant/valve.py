@@ -1,8 +1,9 @@
 import logging.config
 
 from coruscant.exceptions import TempReadErrorException
+from coruscant.models import Relay
 from coruscant.services.gpio import setup_gpio
-from coruscant.services.redis_bus import update_relay_state, update_sensor_data
+from coruscant.services.redis_bus import update_relay, update_sensor_data
 from coruscant.services.sensors import read_temperature
 from coruscant.services.valve import update_valve_state
 from coruscant.settings import (
@@ -19,9 +20,9 @@ logger = logging.getLogger(__name__)
 
 
 def update_valve(relay_id: str, valve_pin: int):
-    update_relay_state(relay_id=relay_id, state="ON")
+    update_relay(relay=Relay(relay_id=relay_id, state="ON"))
     if update_valve_state(valve_pin=valve_pin):
-        update_relay_state(relay_id=relay_id, state="OFF")
+        update_relay(relay=Relay(relay_id=relay_id, state="OFF"))
 
 
 if __name__ == "__main__":
