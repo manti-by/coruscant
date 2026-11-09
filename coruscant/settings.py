@@ -37,9 +37,9 @@ PUMP_MAP = {
 
 SERVO_MAP = {
     29: "SERVO-SR",
-    31: "SERVO-GR",
+    35: "SERVO-GR",
     33: "SERVO-NC",
-    35: "SERVO-HL",
+    31: "SERVO-HL",
     37: "SERVO-BR",
     38: "SERVO-WR",
 }
